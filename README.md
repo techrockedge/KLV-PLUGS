@@ -11,3 +11,4 @@ or
 
 `./build_firstrib_rootfs_latest.sh void default amd64 f_00_Void_KLV_XFCE_kernel_WDLteam-rc5.plug`
 
+PLUG **f_00_Void_KLV_XFCE_kernel_WDLteam-rc5.plug** builds a Void Linux based XFCE4 desktop operating system.
