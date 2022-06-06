@@ -70,6 +70,7 @@ sed -i 's/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/default/libc-locales
 xbps-reconfigure -f glibc-locales
 
 # Add ~/Startup directory
+#
 mkdir -p /root/Startup
 cat <<'EOF' >> /usr/local/bin/start-up
 #!/bin/bash
@@ -82,7 +83,6 @@ done
 EOF
 
 chmod +x /usr/local/bin/start-up
-
  
 # Setup autologin on tty1
 #
@@ -144,6 +144,18 @@ usermod -a -G audio weedog
 usermod -a -G audio spot
 usermod -a -G video weedog
 usermod -a -G video spot
+
+# Create working build directory
+mkdir -p /root/Build
+
+# Get run-as-<user> and install
+cd /root/Build
+wget https://rockedge.org/kernels/data/XBPS_packages/run_as_users.tar.gz
+tar xvfz run_as_users.tar.gz
+cp -r $PWD/root/Build/run-as-spot /usr/local/bin
+cp -r $PWD/root/Build/run-as-weedog /usr/local/bin
+chmod + /usr/local/bin/run-as-spot
+chmod + /usr/local/bin/run-as-weedog
 
 
 echo "desktop build process finished"
