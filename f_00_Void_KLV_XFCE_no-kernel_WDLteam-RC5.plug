@@ -50,6 +50,7 @@ xbps-install -y geany gftp rox ffmpeg mtpaint xfce4-screenshooter
 xbps-install -y octoxbps fox guvcview
 xbps-install -y e2fsprogs yelp gparted
 xbps-install -y dosfstools mtools cherrytree
+xbps-install -y squashfs-tools
 
 # Browser selection
 xbps-install -y firefox
@@ -68,6 +69,21 @@ ln -s /etc/sv/NetworkManager /etc/runit/runsvdir/default/NetworkManager
 sed -i 's/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/default/libc-locales
 xbps-reconfigure -f glibc-locales
 
+# Add ~/Startup directory
+mkdir -p /root/Startup
+cat <<'EOF' >> /usr/local/bin/start-up
+#!/bin/bash
+sleep 5
+user_home=$(eval echo ~${SUDO_USER})
+ls $user_home/Startup/* | while read J
+do
+   "$J" &
+done
+EOF
+
+chmod +x /usr/local/bin/start-up
+
+ 
 # Setup autologin on tty1
 #
 cp -a /etc/X11/xinit/xinitrc /root/.xinitrc
@@ -80,8 +96,8 @@ touch ~/.bash_profile
 cat <<'AUTOLOGIN' > /etc/profile.d/autologin.sh
 # autologin on tty1
 if [ -z "$DISPLAY" ] && [ "$(fgconsole)" -eq 1 ]; then
-#  exec startx  # remove the exec if you want back to tty1 on exit X
-startx  # remove the exec if you want back to tty1 on exit X
+exec startx  # remove the exec if you want back to tty1 on exit X
+
 fi
 AUTOLOGIN
 
@@ -94,7 +110,11 @@ ln -s /etc/sv/dbus /etc/runit/runsvdir/default/dbus
 # Auto-editing .xinitrc to use xfce4 instead of twm
 # Because I'm using exec here the script will end there so no xterms started
 #
-sed -i 's/twm &/exec xfce4-session/' ~/.xinitrc
+# sed -i 's/twm &/exec xfce4-session/' ~/.xinitrc
+
+sed -i '51,$d' /root/.xinitrc
+echo "/usr/local/bin/start-up &" >>/root/.xinitrc 
+echo "exec xfce4-session" >>/root/.xinitrc 
 
 ## USER CONFIGS: Copy main configs to /etc/skel for all normal users later added
 #
