@@ -149,13 +149,20 @@ usermod -a -G video spot
 mkdir -p /root/Build
 
 # Get run-as-<user> and install
+#
 cd /root/Build
 wget https://rockedge.org/kernels/data/XBPS_packages/run_as_users.tar.gz
 tar xvfz run_as_users.tar.gz
-cp -r $PWD/root/Build/run-as-spot /usr/local/bin
-cp -r $PWD/root/Build/run-as-weedog /usr/local/bin
+cp -r /root/Build/run_as_XX/run-as-spot /usr/local/bin
+cp -r /root/Build/run_as_XX/run-as-weedog /usr/local/bin
 chmod + /usr/local/bin/run-as-spot
 chmod + /usr/local/bin/run-as-weedog
 
+# Get inst-xbps and install
+#
+cd /root/Build
+wget https://rockedge.org/kernels/data/XBPS_packages/inst-xbps.gz
+mv /root/Build/inst-xbps.gz /usr/local/bin/inst-xbps 
+chmod + /usr/local/bin/inst-xbps
 
 echo "desktop build process finished"
