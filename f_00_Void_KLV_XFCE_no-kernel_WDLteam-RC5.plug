@@ -101,9 +101,16 @@ exec startx  # remove the exec if you want back to tty1 on exit X
 fi
 AUTOLOGIN
 
+# Get and install autologin fix
+#
+cd /etc/sv
+wget https://rockedge.org/kernels/data/XBPS_packages/agetty-autologin-tty1.tar.gz
+tar xvfz agetty-autologin-tty1.tar.gz
+
 # Use agetty-autologin-tty1 instead of agetty-tty1 
 rm -f /etc/runit/runsvdir/default/agetty-tty1
 ln -s /etc/sv/agetty-autologin-tty1 /etc/runit/runsvdir/default/agetty-autologin-tty1
+
 # enable dbus service
 ln -s /etc/sv/dbus /etc/runit/runsvdir/default/dbus
 
@@ -114,7 +121,8 @@ ln -s /etc/sv/dbus /etc/runit/runsvdir/default/dbus
 
 sed -i '51,$d' /root/.xinitrc
 echo "/usr/local/bin/start-up &" >>/root/.xinitrc 
-echo "exec xfce4-session" >>/root/.xinitrc 
+echo "# exec xfce4-session" >>/root/.xinitrc
+echo "xfce4-session" >>/root/.xinitrc  # removed exec to allow dropping out of Xorg to console
 
 ## USER CONFIGS: Copy main configs to /etc/skel for all normal users later added
 #
@@ -135,17 +143,38 @@ echo '%wheel ALL=(ALL) NOPASSWD: ALL' | (VISUAL="tee -a" visudo) # wheel group a
 useradd -m -G wheel -s /bin/bash spot  #spot in wheel group so has elevated sudo permissions
 printf "spot\nspot\n" | passwd spot >/dev/null 2>&1 # Quietly set default spot
 
+# Create /home/spot directories
+#
+mkdir -p /home/spot/Desktop
+mkdir -p /home/spot/Documents
+mkdir -p /home/spot/Downloads
+mkdir -p /home/spot/Music
+mkdir -p /home/spot/my-applications
+mkdir -p /home/spot/Pictures
+mkdir -p /home/spot/Public
+mkdir -p /home/spot/Startup
+mkdir -p /home/spot/Templates
+mkdir -p /home/spot/Videos
+
+
 # Set permissions
+#
 chown -R spot:spot /home/spot
 chown -R weedog:weedog /home/weedog
 
-# add users to groups
+# add users to groups and change permissions
+#
 usermod -a -G audio weedog
 usermod -a -G audio spot
 usermod -a -G video weedog
 usermod -a -G video spot
+xhost +
+chmod 755 /
+chmod 755 /bin
+chmod 755 /lib
 
-# Create working build directory
+# Create work build directory
+#
 mkdir -p /root/Build
 
 # Get run-as-<user> and install
