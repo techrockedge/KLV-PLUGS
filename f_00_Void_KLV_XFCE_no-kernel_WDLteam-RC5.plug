@@ -173,7 +173,11 @@ chmod 755 /
 chmod 755 /bin
 chmod 755 /lib
 
+<<<<<<< HEAD
 # Create work build directory
+=======
+# Create working build directory
+>>>>>>> 78cdc4f6c9708c0d81a47527508a7aaee5b1e6dd
 #
 mkdir -p /root/Build
 
