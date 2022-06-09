@@ -212,25 +212,23 @@ wget https://rockedge.org/kernels/data/XBPS_packages/uextract-4.7_1.noarch.xbps
 
 
 
-xbps-rindex -a Build/*.xbps
-
 # Install libfontconfig cache fix
-xbps-install --repository=/root/Build libfontconfig1-1.12_0.x86_64.xbps
+inst-xbps libfontconfig1-1.12_0.x86_64.xbps
 
 # Install gparted-shell
-xbps-install --repository=/root/Build gparted-shell-1.0_0.noarch.xbps
+inst-xbps gparted-shell-1.0_0.noarch.xbps
 
 # Install MIME definitions 
-xbps-install --repository=/root/Build mime-add-1.1_0.noarch.xbps
+inst-xbps mime-add-1.1_0.noarch.xbps
 
 # Install pfind-howbig-tca
-xbps-install --repository=/root/Build 
+inst-xbps pfind-howbig-tca-1.0_0.noarch.xbps
 
 # Install xbps-tools 
-xbps-install --repository=/root/Build xbps-tools-1.0_1.noarch.xbps
+inst-xbps xbps-tools-1.0_1.noarch.xbps
 
 # Install uextract
-xbps-install --repository=/root/Build uextract-4.7_1.noarch.xbps
+inst-xbps uextract-4.7_1.noarch.xbps
 
 
 
