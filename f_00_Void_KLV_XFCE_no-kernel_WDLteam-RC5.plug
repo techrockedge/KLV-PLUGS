@@ -47,7 +47,7 @@ xbps-install -y gvfs-smb gvfs-mtp gvfs-cdda
 # Optional packages
 #
 xbps-install -y geany gftp rox ffmpeg mtpaint xfce4-screenshooter
-xbps-install -y octoxbps fox guvcview gparted
+xbps-install -y octoxbps fox guvcview
 xbps-install -y e2fsprogs yelp gparted
 xbps-install -y dosfstools mtools cherrytree
 xbps-install -y squashfs-tools wget
