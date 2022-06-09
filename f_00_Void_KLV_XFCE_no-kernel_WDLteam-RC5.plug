@@ -47,13 +47,19 @@ xbps-install -y gvfs-smb gvfs-mtp gvfs-cdda
 # Optional packages
 #
 xbps-install -y geany gftp rox ffmpeg mtpaint xfce4-screenshooter
-xbps-install -y octoxbps fox guvcview
+xbps-install -y octoxbps fox guvcview gparted
 xbps-install -y e2fsprogs yelp gparted
 xbps-install -y dosfstools mtools cherrytree
-xbps-install -y squashfs-tools
+xbps-install -y squashfs-tools wget
 
 # Browser selection
 xbps-install -y firefox
+
+# Fix Firefox Fonts 
+#
+ln -s /usr/share/fontconfig/conf.avail/70-no-bitmaps.conf /etc/fonts/conf.d/
+xbps-reconfigure -f fontconfig
+
 
 # Install Audio
 #
@@ -173,11 +179,7 @@ chmod 755 /
 chmod 755 /bin
 chmod 755 /lib
 
-<<<<<<< HEAD
 # Create work build directory
-=======
-# Create working build directory
->>>>>>> 78cdc4f6c9708c0d81a47527508a7aaee5b1e6dd
 #
 mkdir -p /root/Build
 
@@ -197,5 +199,39 @@ cd /root/Build
 wget https://rockedge.org/kernels/data/XBPS_packages/inst-xbps.gz
 mv /root/Build/inst-xbps.gz /usr/local/bin/inst-xbps 
 chmod + /usr/local/bin/inst-xbps
+
+# Get KLV custom packages
+#
+cd /root/Build
+wget https://rockedge.org/kernels/data/XBPS_packages/libfontconfig1-1.12_0.x86_64.xbps
+wget https://rockedge.org/kernels/data/XBPS_packages/gparted-shell-1.0_0.noarch.xbps
+wget https://rockedge.org/kernels/data/XBPS_packages/mime-add-1.1_0.noarch.xbps
+wget https://rockedge.org/kernels/data/XBPS_packages/xbps-tools-1.0_1.noarch.xbps
+wget https://rockedge.org/kernels/data/XBPS_packages/pfind-howbig-tca-1.0_0.noarch.xbps
+wget https://rockedge.org/kernels/data/XBPS_packages/uextract-4.7_1.noarch.xbps
+
+
+
+xbps-rindex -a Build/*.xbps
+
+# Install libfontconfig cache fix
+xbps-install --repository=/root/Build libfontconfig1-1.12_0.x86_64.xbps
+
+# Install gparted-shell
+xbps-install --repository=/root/Build gparted-shell-1.0_0.noarch.xbps
+
+# Install MIME definitions 
+xbps-install --repository=/root/Build mime-add-1.1_0.noarch.xbps
+
+# Install pfind-howbig-tca
+xbps-install --repository=/root/Build 
+
+# Install xbps-tools 
+xbps-install --repository=/root/Build xbps-tools-1.0_1.noarch.xbps
+
+# Install uextract
+xbps-install --repository=/root/Build uextract-4.7_1.noarch.xbps
+
+
 
 echo "desktop build process finished"
