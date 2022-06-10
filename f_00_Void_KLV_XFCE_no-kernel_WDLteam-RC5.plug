@@ -198,7 +198,7 @@ chmod + /usr/local/bin/run-as-weedog
 cd /root/Build
 wget https://rockedge.org/kernels/data/XBPS_packages/inst-xbps.gz
 mv /root/Build/inst-xbps.gz /usr/local/bin/inst-xbps 
-chmod + /usr/local/bin/inst-xbps
+chmod +X /usr/local/bin/inst-xbps
 
 # Get KLV custom packages
 #
