@@ -206,7 +206,7 @@ cd /root/Build
 wget https://rockedge.org/kernels/data/XBPS_packages/libfontconfig1-1.12_0.x86_64.xbps
 wget https://rockedge.org/kernels/data/XBPS_packages/gparted-shell-1.0_0.noarch.xbps
 wget https://rockedge.org/kernels/data/XBPS_packages/mime-add-1.1_0.noarch.xbps
-wget https://rockedge.org/kernels/data/XBPS_packages/xbps-tools-1.0_1.noarch.xbps
+wget https://rockedge.org/kernels/data/XBPS_packages/xbps-tools-1.0_3.noarch.xbps
 wget https://rockedge.org/kernels/data/XBPS_packages/pfind-howbig-tca-1.0_0.noarch.xbps
 wget https://rockedge.org/kernels/data/XBPS_packages/uextract-4.7_1.noarch.xbps
 wget https://rockedge.org/kernels/data/XBPS_packages/tzupdate2-2.0_2.noarch.xbps
@@ -231,7 +231,7 @@ xbps-install -y --repository=Build/ mime-add-1.1_0
 xbps-install -y --repository=Build/ pfind-howbig-tca-1.0_0
 
 # Install xbps-tools 
-xbps-install -y --repository=Build/ xbps-tools-1.0_1
+xbps-install -y --repository=Build/ xbps-tools-1.0_3
 
 # Install uextract
 xbps-install -y --repository=Build/ uextract-4.7_1
