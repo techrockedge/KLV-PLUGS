@@ -253,5 +253,5 @@ xbps-install -y --repository=Build/ dropbear-0.81_1
 rm -r /root/Build
 rm /var/cache/xbps/*
 
-------------------------------------------------------------------------
+#-----------------------------------------------------------------------
 echo "desktop build process finished"
