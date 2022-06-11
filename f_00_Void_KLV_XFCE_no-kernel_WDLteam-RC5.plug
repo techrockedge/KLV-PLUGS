@@ -209,6 +209,10 @@ wget https://rockedge.org/kernels/data/XBPS_packages/mime-add-1.1_0.noarch.xbps
 wget https://rockedge.org/kernels/data/XBPS_packages/xbps-tools-1.0_1.noarch.xbps
 wget https://rockedge.org/kernels/data/XBPS_packages/pfind-howbig-tca-1.0_0.noarch.xbps
 wget https://rockedge.org/kernels/data/XBPS_packages/uextract-4.7_1.noarch.xbps
+wget https://rockedge.org/kernels/data/XBPS_packages/tzupdate2-2.0_2.noarch.xbps
+wget https://rockedge.org/kernels/data/XBPS_packages/xlunch-4.1_3.x86_64.xbps
+wget https://rockedge.org/kernels/data/XBPS_packages/default-scripts-1.0_1.noarch.xbps
+wget https://rockedge.org/kernels/data/XBPS_packages/dropbear-0.81_1.x86_64.xbps
 
 
 cd /root
@@ -232,6 +236,18 @@ xbps-install -y --repository=Build/ xbps-tools-1.0_1
 
 # Install uextract
 xbps-install -y --repository=Build/ uextract-4.7_1
+
+# Install tzupdate
+xbps-install -y --repository=Build/ tzupdate2-2.0_2.noarch.xbps
+
+# Install xLunch
+xbps-install -y --repository=Build/ xlunch-4.1_3.x86_64.xbps
+
+# Install default launch scripts
+xbps-install -y --repository=Build/ default-scripts-1.0_1.noarch.xbps
+
+# Install dropbear
+xbps-install -y --repository=Build/ dropbear-0.81_1.x86_64.xbps
 
 
 
