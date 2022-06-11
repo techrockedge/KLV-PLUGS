@@ -216,7 +216,6 @@ wget https://rockedge.org/kernels/data/XBPS_packages/dropbear-0.81_1.x86_64.xbps
 
 
 cd /root
-
 xbps-rindex -a Build/*.xbps
 
 # Install libfontconfig cache fix
@@ -249,6 +248,10 @@ xbps-install -y --repository=Build/ default-scripts-1.0_1.noarch.xbps
 # Install dropbear
 xbps-install -y --repository=Build/ dropbear-0.81_1.x86_64.xbps
 
+# Clean Up
+#
+rm -r /root/Build
+rm /var/cache/xbps/*
 
-
+------------------------------------------------------------------------
 echo "desktop build process finished"
