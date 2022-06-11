@@ -222,13 +222,13 @@ xbps-rindex -a Build/*.xbps
 xbps-install -y --repository=Build/ libfontconfig1-1.12_0
 
 # Install gparted-shell
-xbps-install -y --repository=Build/ gparted-shell-1.0_0.noarch.xbps
+xbps-install -y --repository=Build/ gparted-shell-1.0_0
 
 # Install MIME definitions 
-xbps-install -y --repository=Build/ mime-add-1.1_0.noarch.xbps
+xbps-install -y --repository=Build/ mime-add-1.1_0
 
 # Install pfind-howbig-tca
-xbps-install -y --repository=Build/ pfind-howbig-tca-1.0_0.noarch.xbps
+xbps-install -y --repository=Build/ pfind-howbig-tca-1.0_0
 
 # Install xbps-tools 
 xbps-install -y --repository=Build/ xbps-tools-1.0_1
@@ -237,16 +237,16 @@ xbps-install -y --repository=Build/ xbps-tools-1.0_1
 xbps-install -y --repository=Build/ uextract-4.7_1
 
 # Install tzupdate
-xbps-install -y --repository=Build/ tzupdate2-2.0_2.noarch.xbps
+xbps-install -y --repository=Build/ tzupdate2-2.0_2
 
 # Install xLunch
-xbps-install -y --repository=Build/ xlunch-4.1_3.x86_64.xbps
+xbps-install -y --repository=Build/ xlunch-4.1_3
 
 # Install default launch scripts
-xbps-install -y --repository=Build/ default-scripts-1.0_1.noarch.xbps
+xbps-install -y --repository=Build/ default-scripts-1.0_1
 
 # Install dropbear
-xbps-install -y --repository=Build/ dropbear-0.81_1.x86_64.xbps
+xbps-install -y --repository=Build/ dropbear-0.81_1
 
 # Clean Up
 #
