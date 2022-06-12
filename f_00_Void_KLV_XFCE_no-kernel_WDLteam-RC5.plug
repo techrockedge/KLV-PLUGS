@@ -47,7 +47,7 @@ xbps-install -y gvfs-smb gvfs-mtp gvfs-cdda
 # Optional packages
 #
 xbps-install -y geany gftp rox ffmpeg mtpaint xfce4-screenshooter
-xbps-install -y octoxbps fox guvcview
+xbps-install -y octoxbps fox guvcview putty
 xbps-install -y e2fsprogs yelp gparted
 xbps-install -y dosfstools mtools cherrytree
 xbps-install -y squashfs-tools wget
@@ -214,9 +214,11 @@ wget https://rockedge.org/kernels/data/XBPS_packages/xlunch-4.1_3.x86_64.xbps
 wget https://rockedge.org/kernels/data/XBPS_packages/default-scripts-1.0_1.noarch.xbps
 wget https://rockedge.org/kernels/data/XBPS_packages/dropbear-0.81_1.x86_64.xbps
 wget https://rockedge.org/kernels/data/XBPS_packages/sfs-load-2.0_1.noarch.xbps
-wget https://rockedge.org/kernels/data/XBPS_packages/tas-1.0_1.noarch.xbps
+wget https://rockedge.org/kernels/data/XBPS_packages/tas-1.15_1.noarch.xbps
 wget https://rockedge.org/kernels/data/XBPS_packages/packit-pfind-1.0_1.noarch.xbps
 wget https://rockedge.org/kernels/data/XBPS_packages/gettext-1.0_1.noarch.xbps
+wget https://rockedge.org/kernels/data/XBPS_packages/swapper-1.2_1.noarch.xbps
+wget https://rockedge.org/kernels/data/XBPS_packages/backgrounds-1.0_1.noarch.xbps
 
 
 #### Install KLV custom packages ####
@@ -258,7 +260,7 @@ xbps-install -y --repository=Build/ dropbear-0.81_1
 xbps-install -y --repository=Build/ sfs-load-2.0_1
 
 # Install tas
-xbps-install -y --repository=Build/ tas-1.0_1
+xbps-install -y --repository=Build/ tas-1.15_1
 
 # Install Packit and pFind
 xbps-install -y --repository=Build/ packit-pfind-1.0_1
@@ -266,6 +268,11 @@ xbps-install -y --repository=Build/ packit-pfind-1.0_1
 # Install gettext
 xbps-install -y --repository=Build/ gettext-1.0_1
 
+# Install swapper
+xbps-install -y --repository=Build/ swapper-1.2_1
+
+# Install  backgrounds
+xbps-install -y --repository=Build/ backgrounds-1.0_1
 
 # Clean Up
 #
