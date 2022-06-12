@@ -216,6 +216,8 @@ wget https://rockedge.org/kernels/data/XBPS_packages/dropbear-0.81_1.x86_64.xbps
 wget https://rockedge.org/kernels/data/XBPS_packages/sfs-load-1.0_1.noarch.xbps
 wget https://rockedge.org/kernels/data/XBPS_packages/tas-1.0_1.noarch.xbps
 wget https://rockedge.org/kernels/data/XBPS_packages/packit-pfind-1.0_1.noarch.xbps
+wget https://rockedge.org/kernels/data/XBPS_packages/gettext-1.0_1.noarch.xbps
+
 
 #### Install KLV custom packages ####
 #
@@ -260,6 +262,9 @@ xbps-install -y --repository=Build/ tas-1.0_1
 
 # Install Packit and pFind
 xbps-install -y --repository=Build/ packit-pfind-1.0_1
+
+# Install gettext
+xbps-install -y --repository=Build/ gettext-1.0_1
 
 
 # Clean Up
