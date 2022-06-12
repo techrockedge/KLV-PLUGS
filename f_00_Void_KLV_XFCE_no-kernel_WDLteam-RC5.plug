@@ -213,7 +213,7 @@ wget https://rockedge.org/kernels/data/XBPS_packages/tzupdate2-2.0_2.noarch.xbps
 wget https://rockedge.org/kernels/data/XBPS_packages/xlunch-4.1_3.x86_64.xbps
 wget https://rockedge.org/kernels/data/XBPS_packages/default-scripts-1.0_1.noarch.xbps
 wget https://rockedge.org/kernels/data/XBPS_packages/dropbear-0.81_1.x86_64.xbps
-wget https://rockedge.org/kernels/data/XBPS_packages/sfs-load-1.0_1.noarch.xbps
+wget https://rockedge.org/kernels/data/XBPS_packages/sfs-load-2.0_1.noarch.xbps
 wget https://rockedge.org/kernels/data/XBPS_packages/tas-1.0_1.noarch.xbps
 wget https://rockedge.org/kernels/data/XBPS_packages/packit-pfind-1.0_1.noarch.xbps
 wget https://rockedge.org/kernels/data/XBPS_packages/gettext-1.0_1.noarch.xbps
@@ -255,7 +255,7 @@ xbps-install -y --repository=Build/ default-scripts-1.0_1
 xbps-install -y --repository=Build/ dropbear-0.81_1
 
 # Install SFS-Load
-xbps-install -y --repository=Build/ sfs-load-1.0_1
+xbps-install -y --repository=Build/ sfs-load-2.0_1
 
 # Install tas
 xbps-install -y --repository=Build/ tas-1.0_1
