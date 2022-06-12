@@ -200,7 +200,7 @@ mv /root/Build/inst-xbps.gz /usr/local/bin/inst-xbps
 # Set execute permissions recursivly for binaries and scripts
 chmod +x -R /usr/local/bin
 
-# Get KLV custom packages
+#### Get KLV custom packages ####
 #
 cd /root/Build
 wget https://rockedge.org/kernels/data/XBPS_packages/libfontconfig1-1.12_0.x86_64.xbps
@@ -217,7 +217,8 @@ wget https://rockedge.org/kernels/data/XBPS_packages/sfs-load-1.0_1.noarch.xbps
 wget https://rockedge.org/kernels/data/XBPS_packages/tas-1.0_1.noarch.xbps
 wget https://rockedge.org/kernels/data/XBPS_packages/packit-pfind-1.0_1.noarch.xbps
 
-
+#### Install KLV custom packages ####
+#
 cd /root
 xbps-rindex -a Build/*.xbps
 
