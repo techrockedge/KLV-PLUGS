@@ -222,7 +222,8 @@ wget https://rockedge.org/kernels/data/XBPS_packages/backgrounds-1.0_1.noarch.xb
 
 
 #### Install KLV custom packages ####
-#
+
+# Register and index packages
 cd /root
 xbps-rindex -a Build/*.xbps
 
