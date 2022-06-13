@@ -206,7 +206,8 @@ wget https://rockedge.org/kernels/data/XBPS_packages/swapper-1.2_1.noarch.xbps
 wget https://rockedge.org/kernels/data/XBPS_packages/backgrounds-1.0_1.noarch.xbps
 wget https://rockedge.org/kernels/data/XBPS_packages/run-as-users-1.5_1.noarch.xbps
 wget https://rockedge.org/kernels/data/XBPS_packages/inst-xbps-1.8_1.noarch.xbps
-
+wget https://rockedge.org/kernels/data/XBPS_packages/gtkhash-1.1.1_1.x86_64.xbps
+wget https://rockedge.org/kernels/data/XBPS_packages/pure-ftpd-1.0.50_1.x86_64.xbps
 
 
 #### Install KLV custom packages ####
@@ -268,6 +269,13 @@ xbps-install -y --repository=Build/ run-as-users-1.5_1
 
 # Install inst-xbps
 xbps-install -y --repository=Build/ inst-xbps-1.8_1
+
+# Install gtkhash
+xbps-install -y --repository=Build/ gtkhash-1.1.1_1
+
+# Install pure-ftpd
+xbps-install -y --repository=Build/ pure-ftpd-1.0.50_1
+
 
 # Set execution permissions recursivly for binaries and scripts
 chmod +x -R /usr/local/bin
