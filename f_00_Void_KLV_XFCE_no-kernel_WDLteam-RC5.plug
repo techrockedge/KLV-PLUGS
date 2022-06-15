@@ -18,7 +18,7 @@
 #
 # base system
 xbps-install -y base-minimal ncurses-base bash eudev
-xbps-install -y file mc xterm
+xbps-install -y file mc xterm xauth
 xbps-install -y shadow wpa_supplicant  # needed for most wifi
 xbps-install -y ntfs-3g zstd
 
@@ -179,8 +179,13 @@ chmod 755 /
 chmod 755 /bin
 chmod 755 /lib
 
-
-
+# add sudo -spot to .desktop files
+cd /usr/share/applications
+sed -i 's/^Exec=/&sudo -uspot /' octoxbps.desktop
+sed -i 's/^Exec=/&sudo -uspot /' octoxbps-notifier.desktop
+cp /usr/share/applications/thunar.desktop /usr/share/applications/thunar-spot.desktop
+sed -i 's/^Exec=/&sudo -uspot /' thunar-spot.desktop
+sed -i 's/^Name=/&spot-/' thunar-spot.desktop
 
 #### Get KLV custom packages ####
 #
