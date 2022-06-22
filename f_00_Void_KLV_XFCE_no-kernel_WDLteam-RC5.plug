@@ -18,7 +18,7 @@
 #
 # base system
 xbps-install -y base-minimal ncurses-base bash eudev
-xbps-install -y file mc xterm xauth
+xbps-install -y file mc xterm
 xbps-install -y shadow wpa_supplicant  # needed for most wifi
 xbps-install -y ntfs-3g zstd
 
@@ -179,13 +179,8 @@ chmod 755 /
 chmod 755 /bin
 chmod 755 /lib
 
-# add sudo -spot to .desktop files
-cd /usr/share/applications
-sed -i 's/^Exec=/&sudo -uspot /' octoxbps.desktop
-sed -i 's/^Exec=/&sudo -uspot /' octoxbps-notifier.desktop
-cp /usr/share/applications/thunar.desktop /usr/share/applications/thunar-spot.desktop
-sed -i 's/^Exec=/&sudo -uspot /' thunar-spot.desktop
-sed -i 's/^Name=/&spot-/' thunar-spot.desktop
+
+
 
 #### Get KLV custom packages ####
 #
@@ -213,6 +208,8 @@ wget https://rockedge.org/kernels/data/XBPS_packages/run-as-users-1.5_1.noarch.x
 wget https://rockedge.org/kernels/data/XBPS_packages/inst-xbps-1.8_1.noarch.xbps
 wget https://rockedge.org/kernels/data/XBPS_packages/gtkhash-1.1.1_1.x86_64.xbps
 wget https://rockedge.org/kernels/data/XBPS_packages/pure-ftpd-1.0.50_1.x86_64.xbps
+wget https://rockedge.org/kernels/data/XBPS_packages/syndownload-2.0_1.x86_64.xbps
+
 
 
 #### Install KLV custom packages ####
@@ -280,6 +277,9 @@ xbps-install -y --repository=Build/ gtkhash-1.1.1_1
 
 # Install pure-ftpd
 xbps-install -y --repository=Build/ pure-ftpd-1.0.50_1
+
+# Install Syndownload
+xbps-install -y --repository=Build/ syndownload-2.0_1
 
 
 # Set execution permissions recursivly for binaries and scripts
