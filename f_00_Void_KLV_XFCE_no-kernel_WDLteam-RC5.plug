@@ -323,5 +323,5 @@ rm -r /root/Build
 rm /var/cache/xbps/*
 
 #-----------------------------------------------------------------------
-echo "desktop build process finished"
+echo "desktop build process finished......."
 
