@@ -179,8 +179,23 @@ chmod 755 /
 chmod 755 /bin
 chmod 755 /lib
 
+<<<<<<< HEAD
 
 
+=======
+<<<<<<< HEAD
+
+
+=======
+# add sudo -spot to .desktop files
+cd /usr/share/applications
+sed -i 's/^Exec=/&sudo -uspot /' octoxbps.desktop
+sed -i 's/^Exec=/&sudo -uspot /' octoxbps-notifier.desktop
+cp /usr/share/applications/thunar.desktop /usr/share/applications/thunar-spot.desktop
+sed -i 's/^Exec=/&sudo -uspot /' thunar-spot.desktop
+sed -i 's/^Name=/&spot-/' thunar-spot.desktop
+>>>>>>> eb08341564cf9101e017bab8d8ef14711cdd28b6
+>>>>>>> ac4e1b2f55f23cc6faa63e5f5b9d78f029622e7d
 
 #### Get KLV custom packages ####
 #
@@ -208,10 +223,20 @@ wget https://rockedge.org/kernels/data/XBPS_packages/run-as-users-1.5_1.noarch.x
 wget https://rockedge.org/kernels/data/XBPS_packages/inst-xbps-1.8_1.noarch.xbps
 wget https://rockedge.org/kernels/data/XBPS_packages/gtkhash-1.1.1_1.x86_64.xbps
 wget https://rockedge.org/kernels/data/XBPS_packages/pure-ftpd-1.0.50_1.x86_64.xbps
+<<<<<<< HEAD
 wget https://rockedge.org/kernels/data/XBPS_packages/syndownload-2.0_1.x86_64.xbps
 
+=======
+<<<<<<< HEAD
+wget https://rockedge.org/kernels/data/XBPS_packages/syndownload-2.0_1.x86_64.xbps
+>>>>>>> ac4e1b2f55f23cc6faa63e5f5b9d78f029622e7d
 
 
+
+=======
+
+
+>>>>>>> eb08341564cf9101e017bab8d8ef14711cdd28b6
 #### Install KLV custom packages ####
 
 # Register and index packages
@@ -277,6 +302,12 @@ xbps-install -y --repository=Build/ gtkhash-1.1.1_1
 
 # Install pure-ftpd
 xbps-install -y --repository=Build/ pure-ftpd-1.0.50_1
+<<<<<<< HEAD
+
+# Install Syndownload
+xbps-install -y --repository=Build/ syndownload-2.0_1
+=======
+>>>>>>> eb08341564cf9101e017bab8d8ef14711cdd28b6
 
 # Install Syndownload
 xbps-install -y --repository=Build/ syndownload-2.0_1
