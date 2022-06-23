@@ -1,11 +1,11 @@
 #!/bin/sh
 echo "start KLV-Airedale build....."
-wget https://rockedge.org/kernels/data/Kernels/64bit/5.16.14-KLV-no_AUFS/5.16.14-KLV/vmlinuz
-wget https://rockedge.org/kernels/data/Kernels/64bit/5.16.14-KLV-no_AUFS/5.16.14-KLV/01firmware-5.16.14-KLV.sfs
-wget https://rockedge.org/kernels/data/Kernels/64bit/5.16.14-KLV-no_AUFS/5.16.14-KLV/00modules-5.16.14-KLV.sfs
-wget https://rockedge.org/kernels/data/KLV-initrd/initrd.gz
-wget https://rockedge.org/kernels/data/KLV-initrd/w_init
-
+wget --continue https://rockedge.org/kernels/data/Kernels/64bit/5.16.14-KLV-no_AUFS/5.16.14-KLV/vmlinuz
+wget --continue https://rockedge.org/kernels/data/Kernels/64bit/5.16.14-KLV-no_AUFS/5.16.14-KLV/01firmware-5.16.14-KLV.sfs
+wget --continue https://rockedge.org/kernels/data/Kernels/64bit/5.16.14-KLV-no_AUFS/5.16.14-KLV/00modules-5.16.14-KLV.sfs
+wget --continue https://rockedge.org/kernels/data/KLV-initrd/initrd.gz
+wget --continue https://rockedge.org/kernels/data/KLV-initrd/w_init
+wget --continue https://rockedge.org/kernels/data/KLV-initrd/10gtkdialogGTK3_filemnt64.sfs
 
 mkdir 07dummy_rootfs
 
