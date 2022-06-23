@@ -193,27 +193,28 @@ sed -i 's/^Name=/&spot-/' thunar-spot.desktop
 mkdir -p /root/Build
 cd /root/Build
 
-wget https://rockedge.org/kernels/data/XBPS_packages/libfontconfig1-1.12_0.x86_64.xbps
-wget https://rockedge.org/kernels/data/XBPS_packages/gparted-shell-1.0_0.noarch.xbps
-wget https://rockedge.org/kernels/data/XBPS_packages/mime-add-1.1_0.noarch.xbps
-wget https://rockedge.org/kernels/data/XBPS_packages/xbps-tools-1.0_3.noarch.xbps
-wget https://rockedge.org/kernels/data/XBPS_packages/pfind-howbig-tca-1.0_0.noarch.xbps
-wget https://rockedge.org/kernels/data/XBPS_packages/uextract-4.7_1.noarch.xbps
-wget https://rockedge.org/kernels/data/XBPS_packages/tzupdate2-2.0_2.noarch.xbps
-wget https://rockedge.org/kernels/data/XBPS_packages/xlunch-4.1_3.x86_64.xbps
-wget https://rockedge.org/kernels/data/XBPS_packages/default-scripts-1.0_1.noarch.xbps
-wget https://rockedge.org/kernels/data/XBPS_packages/dropbear-0.81_1.x86_64.xbps
-wget https://rockedge.org/kernels/data/XBPS_packages/SFS-Load-2.0_1.noarch.xbps
-wget https://rockedge.org/kernels/data/XBPS_packages/tas-1.15_1.noarch.xbps
-wget https://rockedge.org/kernels/data/XBPS_packages/packit-pfind-1.0_1.noarch.xbps
-wget https://rockedge.org/kernels/data/XBPS_packages/gettext-1.0_1.noarch.xbps
-wget https://rockedge.org/kernels/data/XBPS_packages/swapper-1.2_1.noarch.xbps
-wget https://rockedge.org/kernels/data/XBPS_packages/backgrounds-1.0_1.noarch.xbps
-wget https://rockedge.org/kernels/data/XBPS_packages/run-as-users-1.5_1.noarch.xbps
-wget https://rockedge.org/kernels/data/XBPS_packages/inst-xbps-1.8_1.noarch.xbps
-wget https://rockedge.org/kernels/data/XBPS_packages/gtkhash-1.1.1_1.x86_64.xbps
-wget https://rockedge.org/kernels/data/XBPS_packages/pure-ftpd-1.0.50_1.x86_64.xbps
-wget https://rockedge.org/kernels/data/XBPS_packages/syndownload-2.0_1.x86_64.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/libfontconfig1-1.12_0.x86_64.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/gparted-shell-1.0_0.noarch.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/mime-add-1.1_0.noarch.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/xbps-tools-1.0_3.noarch.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/pfind-howbig-tca-1.0_0.noarch.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/uextract-4.7_1.noarch.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/tzupdate2-2.0_2.noarch.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/xlunch-4.1_3.x86_64.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/default-scripts-1.0_1.noarch.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/dropbear-0.81_1.x86_64.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/SFS-Load-2.0_1.noarch.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/tas-1.15_1.noarch.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/packit-pfind-1.0_1.noarch.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/gettext-1.0_1.noarch.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/swapper-1.2_1.noarch.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/backgrounds-1.0_1.noarch.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/run-as-users-1.5_1.noarch.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/inst-xbps-1.8_1.noarch.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/gtkhash-1.1.1_1.x86_64.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/pure-ftpd-1.0.50_1.x86_64.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/syndownload-2.0_1.x86_64.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/desktop-config-1.0_1.x86_64.xbps
 
 #### Install KLV custom packages ####
 
@@ -284,6 +285,9 @@ xbps-install -y --repository=Build/ pure-ftpd-1.0.50_1
 
 # Install Syndownload
 xbps-install -y --repository=Build/ syndownload-2.0_1
+
+# Install desktop configuration
+xbps-install -y --repository=Build/ desktop-config-1.0_1
 
 # Set execution permissions recursivly for binaries and scripts
 chmod +x -R /usr/local/bin
