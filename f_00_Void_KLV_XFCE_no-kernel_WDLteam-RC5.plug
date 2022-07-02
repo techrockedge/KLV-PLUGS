@@ -20,7 +20,7 @@
 xbps-install -y base-minimal ncurses-base bash eudev
 xbps-install -y file mc xterm xauth
 xbps-install -y shadow wpa_supplicant  # needed for most wifi
-xbps-install -y ntfs-3g zstd
+xbps-install -y ntfs-3g zstd zip
 
 # set up passwd system
 pwconv
@@ -51,6 +51,7 @@ xbps-install -y octoxbps fox guvcview putty
 xbps-install -y e2fsprogs yelp gparted
 xbps-install -y dosfstools mtools cherrytree
 xbps-install -y squashfs-tools wget
+xbps-install -y micro
 
 # Browser selection
 xbps-install -y firefox
