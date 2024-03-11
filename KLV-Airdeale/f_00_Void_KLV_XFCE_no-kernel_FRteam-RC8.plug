@@ -198,9 +198,6 @@ echo "first stage is complete!!"
 
 ####
 ####
-# Add-on for f_00_Void_KLV_XFCE_no-kernel_FRteam-rc7.plug
-# version="3.0.0"; revision="-rc7"
-
 #### Get KLV custom packages ####
 #
 # Create and switch to build directory
@@ -230,6 +227,19 @@ wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/pure-ftpd-1.
 wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/syndownload-2.0_1.x86_64.xbps
 wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/desktop-config-1.0_1.x86_64.xbps
 wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/sClock-1.5_1.x86_64.xbps
+
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/pSchedule-1.1.7_1.noarch.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/grub2config-2.0.1_1.x86_64.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/poorercputemp-0.2_1.x86_64.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/psync-2.9_1.x86_64.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/save2flash-1.7_1.noarch.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/dcontrol-2.0_1.x86_64.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/dir2xbps-1.0_1.noarch.xbps 
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/load-sfs-fuse-1.2_0.x86_64.xbps
+#wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/
+#wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/
+#wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/
+
 
 
 #### Install KLV custom packages ####
@@ -308,7 +318,38 @@ xbps-install -y --repository=Build/ desktop-config-1.0_1
 # Install sClock
 xbps-install -y --repository=Build/ sClock-1.5_1
 
+# Install pSchedule-1.1.7_1
+xbps-install -y --repository=Build/ pSchedule-1.1.7_1
 
+# Install grub2config-2.0.1_1
+xbps-install -y --repository=Build/ grub2config-2.0.1_1
+
+# Install poorercputemp-0.2_1
+xbps-install -y --repository=Build/ poorercputemp-0.2_1
+
+# Install psync-2.9_1
+xbps-install -y --repository=Build/ psync-2.9_1
+
+# Install save2flash-1.7_1
+xbps-install -y --repository=Build/ save2flash-1.7_1
+
+# Install dcontrol-2.0_1
+xbps-install -y --repository=Build/ dcontrol-2.0_1
+
+# Install dir2xbps-1.0_1
+xbps-install -y --repository=Build/ dir2xbps-1.0_1
+
+# Install load-sfs-fuse-1.2_0
+xbps-install -y --repository=Build/ load-sfs-fuse-1.2_0
+
+# Install cortile-2.4.0_1
+#xbps-install -y --repository=Build/ 
+
+# Install 
+#xbps-install -y --repository=Build/ 
+
+# Install 
+#xbps-install -y --repository=Build/ 
 
 # Set execution permissions recursivly for binaries and scripts
 chmod +x -R /usr/local/bin
