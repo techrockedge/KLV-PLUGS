@@ -1,0 +1,176 @@
+# f_00_Void_KLV_no-kernel_noX_FR-team-minimal.plug
+# version="3.2.0"; revision="-rc7"
+# Kennel Linux Void outfitted with no X server and no kernel **uses Puppy Linux kernel**
+# Creation date 24Sep2021; Revision date: 14Aug2023
+# Copyright Kennel Linux team; Licence MIT
+
+# build this via terminal commands:build_firstrib_rootfs.sh
+# export CONNECTION_TIMEOUT=-1  **not needed with versions greater than v501**
+# ./build_firstrib_rootfs.sh void default amd64 f_00_Void_KLV_no-kernel_noX_FR-team-minimal.plug
+# Architecture i386 will probably successfully build too as an alternative to amd64
+
+# login is user=root passwd=root
+
+# All the parameters/commandlines can be appropriately changed:
+# Simply comment in or comment out till you have what you desire
+# or add new packages to the xbps-install lists.
+# You can add as many valid commandlines as you want in here.
+#
+# base system
+xbps-install -y base-minimal ncurses-base bash eudev
+xbps-install -y file mc xterm xauth
+xbps-install -y shadow wpa_supplicant  # needed for most wifi
+xbps-install -y ntfs-3g zstd
+
+# set up passwd system
+pwconv
+grpconv
+printf "root\nroot\n" | passwd >/dev/null 2>&1 # Quietly set default root passwd to "root"
+
+# set root to use /bin/bash
+usermod --shell /bin/bash root
+
+# Set locale to en_US.UTF-8 
+sed -i 's/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/default/libc-locales
+xbps-reconfigure -f glibc-locales
+
+# Set Bash as shell
+xbps-alternatives --set bash
+
+## --------------------------------------------------------------------------
+## Xorg server, Desktop configuration
+
+#xbps-install -y gvfs-smb gvfs-mtp gvfs-cdda
+
+# Optional packages
+#
+
+xbps-install -y dosfstools squashfs-tools wget
+
+# Browser selection
+
+
+
+# Install Audio
+#
+xbps-install -y pulseaudio pulseaudio-utils alsa-plugins-pulseaudio alsa-utils
+ln -s /etc/sv/pulseaudio /etc/runit/runsvdir/default/pulseaudio
+
+# Install Network Manager
+#
+xbps-install -y NetworkManager network-manager-applet
+#xbps-install -y NetworkManager
+ln -s /etc/sv/NetworkManager /etc/runit/runsvdir/default/NetworkManager
+
+# Set locale to en_US.UTF-8
+sed -i 's/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/default/libc-locales
+xbps-reconfigure -f glibc-locales
+
+# Add ~/Startup directory
+#
+mkdir -p /root/Startup
+cat <<'EOF' >> /usr/local/bin/start-up
+#!/bin/bash
+sleep 5
+user_home=$(eval echo ~${SUDO_USER})
+ls $user_home/Startup/* | while read J
+do
+   "$J" &
+done
+EOF
+
+chmod +x /usr/local/bin/start-up
+ 
+# Setup autologin on tty1
+#
+cp -a /etc/X11/xinit/xinitrc /root/.xinitrc
+cp -R /etc/sv/agetty-tty1 /etc/sv/agetty-autologin-tty1
+sed -i 's/GETTY_ARGS.*/GETTY_ARGS="--autologin root --noclear"/' /etc/sv/agetty-autologin-tty1/conf  # editing for autologin root
+touch /etc/sv/agetty-tty1/down
+
+# Arrange to startx in user's .bash_profile (per Arch Wiki)
+# Remove this section if not wanting boot straight into X
+touch ~/.bash_profile
+cat <<'AUTOLOGIN' > /etc/profile.d/autologin.sh
+# autologin on tty1
+if [ -z "$DISPLAY" ] && [ "$(fgconsole)" -eq 1 ]; then
+exec startx  # remove the exec if you want back to tty1 on exit X
+
+fi
+AUTOLOGIN
+
+# Get and install autologin fix
+#
+cd /etc/sv
+wget https://rockedge.org/kernels/data/XBPS_packages/agetty-autologin-tty1.tar.gz
+tar xvfz agetty-autologin-tty1.tar.gz
+
+# Use agetty-autologin-tty1 instead of agetty-tty1 
+rm -f /etc/runit/runsvdir/default/agetty-tty1
+ln -s /etc/sv/agetty-autologin-tty1 /etc/runit/runsvdir/default/agetty-autologin-tty1
+
+# enable dbus service
+ln -s /etc/sv/dbus /etc/runit/runsvdir/default/dbus
+
+# Auto-editing .xinitrc to use xfce4 instead of twm
+# Because I'm using exec here the script will end there so no xterms started
+#
+# sed -i 's/twm &/exec xfce4-session/' ~/.xinitrc
+
+sed -i '51,$d' /root/.xinitrc
+echo "/usr/local/bin/start-up &" >>/root/.xinitrc 
+echo "# exec xfce4-session" >>/root/.xinitrc
+echo "xfce4-session" >>/root/.xinitrc  # removed exec to allow dropping out of Xorg to console
+
+## USER CONFIGS: Copy main configs to /etc/skel for all normal users later added
+#
+xbps-install -y sudo
+cp -af /root/. /etc/skel
+mkdir -p /etc/skel/.config /etc/skel/.cache /etc/skel/.local/share
+echo Still some extra to do here re the likes of runit starting pulseaudio
+echo among other user needed config bits and pieces,
+echo so probably a few user-config issues noted as needing fixed here
+
+# Give wheel group nopasswd sudo rights and create weedog as wheel group member
+echo '%wheel ALL=(ALL) NOPASSWD: ALL' | (VISUAL="tee -a" visudo) # wheel group added to sudo no password required
+useradd -m -G wheel -s /bin/bash weedog  # weedog in wheel group so has elevated sudo permissions
+printf "weedog\nweedog\n" | passwd weedog >/dev/null 2>&1 # Quietly set default weedog passwd to "weedog"
+
+# Give wheel group nopasswd sudo rights and create spot as wheel group member
+echo '%wheel ALL=(ALL) NOPASSWD: ALL' | (VISUAL="tee -a" visudo) # wheel group added to sudo no password required
+useradd -m -G wheel -s /bin/bash spot  #spot in wheel group so has elevated sudo permissions
+printf "spot\nspot\n" | passwd spot >/dev/null 2>&1 # Quietly set default spot
+
+# Create /home/spot directories
+#
+mkdir -p /home/spot/Downloads
+
+
+# Set permissions
+#
+chown -R spot:spot /home/spot
+chown -R weedog:weedog /home/weedog
+
+# add users to groups and change permissions
+#
+usermod -a -G audio weedog
+usermod -a -G audio spot
+usermod -a -G video weedog
+usermod -a -G video spot
+xhost +
+chmod 755 /
+chmod 755 /bin
+chmod 755 /lib
+
+
+# Set execution permissions recursivly for binaries and scripts
+chmod +x -R /usr/local/bin
+
+# Clean Up
+#
+
+rm /var/cache/xbps/*
+rm /var/cache/fontconfig/*
+
+#-----------------------------------------------------------------------
+echo "desktop build process finished"

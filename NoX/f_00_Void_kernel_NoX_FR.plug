@@ -1,0 +1,78 @@
+# f_00_Void_generic_NoX_WDL_team_no-kernel.plug
+# version="1.2.0"; revision="-rc1"
+# WeeDog Void outfitted with a basic commandline desktop and no kernel
+# Creation date 24Sep2021; Revision date: 01Aug2023
+# Copyright WeeDogLinux team; Licence MIT
+
+# build this via terminal commands:
+# export CONNECTION_TIMEOUT=-1
+# ./build_firstrib_rootfs-XXX.sh void default amd64 f_00_Void_generic_NoX_WDLteam.plug
+# Architecture i386 will probably successfully build too as an alternative to amd64
+
+# login is user=root passwd=root
+
+# All the parameters/commandlines can be appropriately changed:
+# Simply comment in or comment out till you have what you desire
+# or add new packages to the xbps-install lists.
+# You can add as many valid commandlines as you want in here.
+#
+xbps-install -y base-minimal ncurses-base bash eudev
+xbps-install -y file mc xauth
+xbps-install -y shadow wpa_supplicant  # needed for most wifi
+xbps-install -y ntfs-3g zstd
+xbps-install -y linux linux-firmware-network wifi-firmware
+
+
+# set up passwd system
+pwconv
+grpconv
+printf "root\nroot\n" | passwd >/dev/null 2>&1 # Quietly set default root passwd to "root"
+
+# set root to use /bin/bash
+usermod --shell /bin/bash root
+
+# Install Network Manager
+#
+xbps-install -y NetworkManager network-manager-applet
+ln -s /etc/sv/NetworkManager /etc/runit/runsvdir/default/NetworkManager
+
+# Set locale to en_US.UTF-8 
+sed -i 's/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/default/libc-locales
+xbps-reconfigure -f glibc-locales
+
+# enable dbus service
+ln -s /etc/sv/dbus /etc/runit/runsvdir/default/dbus
+
+# Set Bash as shell
+xbps-alternatives --set bash
+
+## --------------------------------------------------------------------------
+
+# Optional packages
+#
+xbps-install -y squashfs-tools wget
+xbps-install -y dosfstools mtools lynx
+
+
+
+# --------------------------------------------------------------------------
+## USER CONFIGS: Copy main configs to /etc/skel for all normal users later added
+#
+xbps-install -y sudo
+cp -af /root/. /etc/skel
+mkdir -p /etc/skel/.config /etc/skel/.cache /etc/skel/.local/share
+echo Still some extra to do here re the likes of runit starting pulseaudio
+echo among other user needed config bits and pieces,
+echo so probably a few user-config issues noted as needing fixed here
+
+# Give wheel group nopasswd sudo rights and create weedog as wheel group member
+echo '%wheel ALL=(ALL) NOPASSWD: ALL' | (VISUAL="tee -a" visudo) # wheel group added to sudo no password required
+useradd -m -G wheel -s /bin/bash weedog  # weedog in wheel group so has elevated sudo permissions
+printf "weedog\nweedog\n" | passwd weedog >/dev/null 2>&1 # Quietly set default weedog passwd to "weedog"
+
+# Give wheel group nopasswd sudo rights and create spot as wheel group member
+echo '%wheel ALL=(ALL) NOPASSWD: ALL' | (VISUAL="tee -a" visudo) # wheel group added to sudo no password required
+useradd -m -G wheel -s /bin/bash spot  #spot in wheel group so has elevated sudo permissions
+printf "spot\nspot\n" | passwd spot >/dev/null 2>&1 # Quietly set default spot
+
+echo "desktop build process finished"
