@@ -1,0 +1,476 @@
+# WeeDogLinux Build Plugin: f_00_void_amd64_WeeDog64_jwm_rox_1.8_no-kernel.plug
+# Contributed by: rockedge
+# License: MIT; Creation Date: 01JAN2021; Revision Date: 18OCT2021
+# WeeDog64-Void JWM ROX and the Void Linux kernel
+# this version sets up automatic login. Main creditials are user=root, passwd=root
+# startx will launch the desktop and time is set to UTC
+# all the parameters can changed as desired.
+#
+xbps-install -y base-minimal file mc
+xbps-install -y ncurses-base wpa_supplicant shadow
+
+# set up passwd system
+pwconv
+grpconv
+# echo -e "root\nroot" | passwd >/dev/null 2>&1 # Quietly set default root passwd to "root"
+printf "root\nroot\n" | passwd >/dev/null 2>&1
+
+
+# set root to use /bin/bash
+usermod --shell /bin/bash root
+
+# you can add as many valid commandlines as you want in here
+xbps-install -y xorg jwm rox bash xterm lxterminal geany adwaita-icon-theme
+xbps-install -y mtpaint htop viewnior xarchiver guvcview ffmpeg alsa-utils
+xbps-install -y firefox squashfs-tools vlc gtkdialog chrony leafpad scrot
+xbps-install -y yad cpanminus menu-cache librsvg-utils imlib2 vlc
+xbps-install -y socklog-void xdgmenumaker ntfs-3g gxmessage
+
+## USER CONFIGS: Copy main configs to /etc/skel for all normal users later added
+xbps-install -y sudo
+cp -af /root/. /etc/skel
+mkdir -p /etc/skel/.config /etc/skel/.cache /etc/skel/.local/share
+
+# Give wheel group nopasswd sudo rights and create weedog as wheel group member
+echo '%wheel ALL=(ALL) NOPASSWD: ALL' | (VISUAL="tee -a" visudo) # wheel group added to sudo no password required
+useradd -m -G wheel -s /bin/bash weedog  # weedog in wheel group so has elevated sudo permissions
+printf "weedog\nweedog\n" | passwd weedog >/dev/null 2>&1 # Quietly set default weedog passwd to "weedog"
+
+# Set locale to en_US.UTF-8 
+sed -i 's/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/default/libc-locales
+xbps-reconfigure -f glibc-locales
+
+# Make changes in /etc/X11/xinit/xinitrc to start jwm and rox -p default with startx if startx is included in /etc/rc.local
+# and auto starts the X server, jwm and rox before the login prompt.
+# Add /root/.xinitrc for the actual startx commands that will be used after logging in as "root"
+cp /etc/X11/xinit/xinitrc /root/.xinitrc
+sed -i '51,$d' /etc/X11/xinit/xinitrc
+echo "jwm &" >>/etc/X11/xinit/xinitrc
+echo "rox -p default &" >>/etc/X11/xinit/xinitrc
+echo "exec xterm -geometry 60x10+600+480 -name login" >>/etc/X11/xinit/xinitrc
+sed -i '51,$d' /root/.xinitrc
+echo "rox -p default &" >>/root/.xinitrc
+echo "exec jwm" >>/root/.xinitrc
+
+# Change jwm clock to also show date
+sed -i 's/<Clock format="%H:%M">/<Clock format="%a %d %b %H:%M">/' /etc/system.jwmrc
+
+# Show MENU in jwm tray
+sed -i 's/TrayButton icon="jwm-blue"/TrayButton label="MENU" icon="jwm-blue"/' /etc/system.jwmrc
+
+# Set up VLC to run as root
+sed -i 's/geteuid/getppid/' /usr/bin/vlc
+
+# Construct rox pinboard default 
+# ***NOTE*** change /mnt/sda1 to match the partition WeeDog is installed on
+#mkdir /root/.config
+#mkdir /root/.config/rox.sourceforge.net
+mkdir -p /root/.config/rox.sourceforge.net/ROX-Filer
+cd /root/.config/rox.sourceforge.net/ROX-Filer
+cat <<'EOF' >> pb_default
+<?xml version="1.0"?>
+<pinboard>
+<backdrop style="Stretched">/usr/share/backgrounds/DarkGray.svg</backdrop>
+<icon x="256" y="32" label="mm_vw">/usr/local/bin/mm_viewme</icon>
+<icon x="32" y="128" label="xterm">/usr/local/bin/defaultterminal</icon>
+<icon x="32" y="224" label="firefox">/usr/share/applications/firefox.desktop</icon>
+<icon x="128" y="32" label="applications">/usr/share/applications</icon>
+<icon x="32" y="32" label="Home">/root</icon>
+<icon x="32" y="320" label="geany">/usr/share/applications/geany.desktop</icon>
+<icon x="32" y="416" label="mtpaint">/usr/share/applications/mtpaint.desktop</icon>
+</pinboard>
+EOF
+
+# Network script construction for eth0 and lo
+cd /usr/local/bin/
+touch net_connect
+echo '#!/bin/sh' >>net_connect
+echo '#ip link set eth0 up' >>net_connect
+echo '#ip link set lo up' >>net_connect
+echo '#udhcpc -i eth0' >>net_connect
+echo 'wiakwifi' >>net_connect
+
+# Set Time script construction. will set to UTC
+# modify /etc/rc.conf to adjust timezone and hardware clock
+touch set_time
+echo '#!/bin/sh' >>set_time
+echo 'chronyd -q "pool pool.ntp.org iburst"' >>set_time
+
+# start audio script construction
+touch start_sound
+echo '#!/bin/sh' >>start_sound
+echo 'modprobe snd_hda_intel' >>start_sound
+echo 'alsactl init' >>start_sound
+
+# start_pmcputemp script construction
+touch start_pmcputemp
+echo '#!/bin/sh' >>start_pmcputemp
+echo 'exec pmcputemp' >>start_pmcputemp
+
+# start_retrovol script construction
+touch start_retrovol
+echo '#!/bin/sh' >>start_retrovol
+echo 'exec retrovol' >>start_retrovol
+
+# start_logging script construction
+touch start_logging
+echo '# enable socklog logging' >>start_logging
+echo 'ln -s /etc/sv/socklog-unix /var/service/' >>start_logging
+echo 'ln -s /etc/sv/nanoklogd /var/service/' >>start_logging
+
+# make both net_connect and start_sound executable
+chmod +x /usr/local/bin/start_sound
+chmod +x /usr/local/bin/net_connect
+chmod +x /usr/local/bin/set_time
+chmod +x /usr/local/bin/start_pmcputemp
+chmod +x /usr/local/bin/start_retrovol
+chmod +x /usr/local/bin/start_logging
+
+# Set system to run connection and audio start scripts on bootup
+cd /etc
+echo "#/usr/local/bin/net_connect" >>rc.local
+echo "#/usr/local/bin/set_time" >>rc.local
+echo "/usr/local/bin/start_sound" >>rc.local
+echo "/usr/local/bin/start_logging" >>rc.local
+
+#ln -s /etc/sv/alsa /var/service/alsa
+
+# enable socklog logging
+ln -s /etc/sv/socklog-unix /var/service/
+ln -s /etc/sv/nanoklogd /var/service/
+
+# Set Bash as shell
+xbps-alternatives --set bash
+
+# create /root/.jwmrc with correct menu links for jwm logged in as root
+cd /root/
+cat <<'EOF' >> /root/.jwmrc 
+<?xml version="1.0"?>
+<JWM>
+<!-- Disable virtual desktop scroll. -->
+	<RootMenu onroot="4"/>
+	<RootMenu onroot="5"/>
+	
+<!-- The root menu. -->
+  <RootMenu onroot="12" height="24">
+        
+        <Include>/root/.jwmrc-menus</Include>
+        
+        <Separator/>
+        <Program icon="/usr/share/icons/Adwaita/256x256/legacy/system-lock-screen.png" label="Exit X">pkill X</Program>
+        <Separator/>       
+        <Restart label="Restart JWM" icon="/usr/share/icons/Adwaita/scalable/emblems/emblem-synchronizing-symbolic.svg"/>
+        <Exit label="Exit JWM" confirm="true" icon="/usr/share/icons/Adwaita/scalable/actions/system-log-out-symbolic.svg"/>
+        <Program icon="/usr/share/icons/Adwaita/scalable/actions/system-shutdown-symbolic.svg" label="Shutdown">xlunch-logout</Program>
+    </RootMenu>
+ <!-- Options for program groups. -->
+    <Group>
+        <Option>tiled</Option>
+        <Option>aerosnap</Option>
+    </Group>
+    <Group>
+        <Class>Pidgin</Class>
+        <Option>sticky</Option>
+    </Group>
+    <Group>
+        <Name>xterm</Name>
+        <Option>vmax</Option>
+    </Group>
+    <Group>
+        <Name>xclock</Name>
+        <Option>drag</Option>
+        <Option>notitle</Option>
+    </Group>
+                                                           
+  <!-- Tray at the bottom. -->
+    <Tray x="0" y="-1" autohide="off" height="24">
+        <TrayButton label="MENU" icon="jwm-blue">root:1</TrayButton>
+        <Spacer width="2"/>
+        <TrayButton popup="xlunch" icon="/usr/share/pixmaps/xlunch-logo.png">exec:xluncher3</TrayButton>
+        <Spacer width="2"/>
+        <TrayButton label="_">showdesktop</TrayButton>
+        <Spacer width="2"/>
+        <TrayButton popup="lxterminal" icon="/usr/share/pixmaps/filled-xterm_32x32.xpm">exec:lxterminal</TrayButton>
+        <Spacer width="2"/>
+                                                           
+    <Pager labeled="true"/>
+        <TaskList maxwidth="256"/>
+                                                           
+    <Dock/>
+                                                                 
+        <Swallow name="xload" width="32">xload -nolabel -bg "#444444" -fg "#00FF00" -hl "#4C7CC1"</Swallow>
+        <Clock format="%a %d %b %H:%M"><Button mask="123">exec:xclock</Button></Clock>
+                                                           
+    </Tray>
+                                                           
+<!-- Visual Styles -->
+    <WindowStyle>
+        <Font>Sans-9:bold</Font>
+        <Width>4</Width>
+        <Height>21</Height>
+        <Corner>3</Corner>
+        <Foreground>#FFFFFF</Foreground>
+        <Background>#555555</Background>
+        <Outline>#000000</Outline>
+        <Opacity>0.5</Opacity>
+        <Active>
+            <Foreground>#FFFFFF</Foreground>
+            <Background>#0077CC</Background>
+            <Outline>#000000</Outline>
+            <Opacity>1.0</Opacity>
+        </Active>
+    </WindowStyle>
+    <TrayStyle group="true" list="desktop">
+        <Font>Sans-9</Font>
+        <Background>#333333</Background>
+        <Foreground>#FFFFFF</Foreground>
+        <Outline>#000000</Outline>
+        <Opacity>0.75</Opacity>
+    </TrayStyle>
+    <TaskListStyle>
+      <Font>Sans-9</Font>
+      <Active>
+        <Foreground>#FFFFFF</Foreground>
+        <Background>#555555</Background>
+      </Active>
+      <Foreground>#FFFFFF</Foreground>
+      <Background>#333333</Background>
+    </TaskListStyle>
+    <PagerStyle>
+        <Outline>#000000</Outline>
+        <Foreground>#555555</Foreground>
+        <Background>#333333</Background>
+        <Text>#FFFFFF</Text>
+        <Active>
+            <Foreground>#0077CC</Foreground>
+            <Background>#004488</Background>
+        </Active>
+    </PagerStyle>
+    <MenuStyle>
+        <Font>Sans-9</Font>
+        <Foreground>#FFFFFF</Foreground>
+        <Background>#333333</Background>
+        <Outline>#000000</Outline>
+        <Active>
+            <Foreground>#FFFFFF</Foreground>
+            <Background>#0077CC</Background>
+       </Active>
+        <Opacity>0.85</Opacity>
+    </MenuStyle>
+    <PopupStyle>
+        <Font>Sans-9</Font>
+        <Foreground>#000000</Foreground>
+        <Background>#999999</Background>
+   </PopupStyle>
+                                                           
+<!-- Path where icons can be found.
+         IconPath can be listed multiple times to allow searching
+         for icons in multiple paths.
+     -->
+    <IconPath>
+        /usr/share/icons/wm-icons/32x32-aquafusion
+    </IconPath>
+    <IconPath>
+        /usr/local/share/jwm
+    </IconPath>
+                                                           
+    <!-- Virtual Desktops -->
+    <!-- Desktop tags can be contained within Desktops for desktop names. -->
+    <Desktops width="4" height="1"> 
+        <!-- Default background. Note that a Background tag can be
+              contained within a Desktop tag to give a specific background
+              for that desktop.
+         -->
+        <Background type="solid">#111111</Background>
+    </Desktops>
+                                                           
+<!-- Double click speed (in milliseconds) -->
+    <DoubleClickSpeed>400</DoubleClickSpeed>
+                                                           
+<!-- Double click delta (in pixels) -->
+    <DoubleClickDelta>2</DoubleClickDelta>
+                                                           
+<!-- The focus model (sloppy or click) -->
+    <FocusModel>click</FocusModel>
+                                                           
+<!-- The snap mode (none, screen, or border) -->
+    <SnapMode distance="10">border</SnapMode>
+                                                           
+<!-- The move mode (outline or opaque) -->
+    <MoveMode>opaque</MoveMode>
+                                                           
+<!-- The resize mode (outline or opaque) -->
+    <ResizeMode>opaque</ResizeMode>
+                                                           
+<!-- Key bindings -->
+    <Key key="Up">up</Key>
+    <Key key="Down">down</Key>
+    <Key key="Right">right</Key>
+    <Key key="Left">left</Key>
+    <Key key="h">left</Key>
+    <Key key="j">down</Key>
+    <Key key="k">up</Key>
+    <Key key="l">right</Key>
+    <Key key="Return">select</Key>
+    <Key key="Escape">escape</Key>
+                                                           
+    <Key mask="A" key="Tab">nextstacked</Key>
+    <Key mask="A" key="F4">close</Key>
+    <Key mask="A" key="#">desktop#</Key>
+    <Key mask="A" key="F1">root:1</Key>
+    <Key mask="A" key="F2">window</Key>
+    <Key mask="A" key="F10">maximize</Key>
+    <Key mask="A" key="Right">rdesktop</Key>
+    <Key mask="A" key="Left">ldesktop</Key>
+    <Key mask="A" key="Up">udesktop</Key>
+    <Key mask="A" key="Down">ddesktop</Key>
+
+    <StartupCommand>start_retrovol &</StartupCommand>
+    <StartupCommand>start_pmcputemp &</StartupCommand>
+                                                           
+</JWM>
+EOF
+
+# install pmcputemp 0.63
+mkdir /root/Build
+cd /root/Build
+wget http://rockedge.org/kernels/data/firstrib/pmcputemp-0.63a.tar.gz
+tar xvfz pmcputemp-0.63a.tar.gz
+cd pmcputemp-0.63a
+cp -r $PWD/root/.config/pmcputemp /root/.config/pmcputemp
+cp -r $PWD/root/.config/autostart/pmcputemp.desktop /usr/share/applications/pmcputemp.desktop
+cp -r $PWD/usr/bin/pmcputemp /usr/bin/pmcputemp
+cp -r $PWD/usr/bin/pmcputemp.sh /usr/bin/pmcputemp.sh
+ 
+# install retrovol 0.10
+cd /root/Build
+wget http://rockedge.org/kernels/data/firstrib/retrovol-0.10-x86_64.tar.gz
+tar xvfz retrovol-0.10-x86_64.tar.gz
+cd retrovol-0.10-x86_64
+cp -r $PWD/usr/bin/retrovol /usr/bin/retrovol
+cp -r $PWD/usr/share/applications/Retrovol.desktop /usr/share/applications/Retrovol.desktop
+cp -r $PWD/usr/share/retrovol /usr/share/retrovol
+
+# install mm_viewme which is in the pb_default 
+cd /root/Build
+wget http://rockedge.org/kernels/data/firstrib/mm_viewme.tar.gz
+tar xvfz mm_viewme.tar.gz
+cp -r $PWD/mm_viewme /usr/local/bin/mm_viewme
+
+# install xlunch
+cd /root/Build
+wget http://rockedge.org/kernels/data/firstrib/xlunch_4.1.1-1_amd64.tar.gz
+tar xvfz xlunch_4.1.1-1_amd64.tar.gz
+cd xlunch_4.1.1-1_amd64
+cp -r $PWD/etc/xdg/menus /etc/xdg/menus
+cp -r $PWD/etc/xlunch /etc/xlunch
+cp -r $PWD/usr/local/bin/xlunch /usr/local/bin/xlunch
+cp -r $PWD/usr/local/bin/xlunch-menu /usr/local/bin/xlunch-menu
+cp -r $PWD/usr/local/bin/xlunch-menu-update  /usr/local/bin/xlunch-menu-update
+cp -r $PWD/usr/local/bin/xlunch-menu-gen /usr/local/bin/xlunch-menu-gen
+cp -r $PWD/usr/local/bin/xlunch-logout /usr/local/bin/xlunch-logout
+cp -r $PWD/usr/local/bin/xluncher3 /usr/local/bin/xluncher3
+cp -r $PWD/usr/local/share/fonts /usr/local/share/fonts
+cp -r $PWD/usr/share/wallpapers /usr/share/wallpapers
+cp -r $PWD/usr/share/xlunch /usr/share/xlunch
+cp -r $PWD/usr/share/icons/hicolor/48x48/apps/xlunch.png /usr/share/icons/hicolor/48x48/apps/xlunch.png
+cp -r $PWD/usr/share/icons/hicolor/48x48/apps/highlight.png /usr/share/icons/hicolor/48x48/apps/highlight.png
+cp -r $PWD/usr/share/icons/hicolor/48x48/apps/xlunch_ghost.png /usr/share/icons/hicolor/48x48/apps/xlunch_ghost.png
+cp -r $PWD/usr/share/pixmaps/xlunch-logo.png /usr/share/pixmaps/xlunch-logo.png
+cp -r $PWD/usr/share/applications/Xlunchlogout.desktop /usr/share/applications/Xlunchlogout.desktop
+cp -r $PWD/usr/share/applications/Xlunch3.desktop /usr/share/applications/Xlunch3.desktop
+cp -r $PWD/usr/share/applications/update-entries.desktop /usr/share/applications/update-entries.desktop
+
+rm -r /etc/xlunch/logout.dsv
+cat <<'EOF' >> /etc/xlunch/logout.dsv
+Shutdown;/usr/share/xlunch/icons/logout/shutdown.png;poweroff
+Restart;/usr/share/xlunch/icons/logout/restart.png;reboot
+Suspend;/usr/share/xlunch/icons/logout/suspend.png;logout
+Exit X;/usr/share/xlunch/icons/logout/logout.png;pkill X
+Cancel;/usr/share/xlunch/icons/logout/cancel.png;killall xlunch
+EOF
+
+
+# Add background directory with some wallpapers
+cd /root/Build
+wget http://rockedge.org/kernels/data/firstrib/backgrounds.tar.gz
+tar xvfz backgrounds.tar.gz -C /usr/share/
+
+# remove pmcputemp, retrovol, xlunch, mm_viewme install files
+rm -r /root/Build
+
+# Create some directories
+mkdir -p /root/my-applications/bin
+
+# Set up automatic login as user = root
+# Create a new autologin service
+
+cp -R /etc/sv/agetty-tty1 /etc/sv/agetty-autologin-tty1
+rm /etc/runit/runsvdir/default/agetty-tty1
+rm /etc/sv/agetty-autologin-tty1/conf
+ln -s /etc/sv/agetty-autologin-tty1 /etc/runit/runsvdir/default
+
+#ln -s /etc/sv/agetty-autologin-tty1 /etc/runit/runsvdir/default/agetty-autologin-tty1
+
+cat <<'EOF' >>  /etc/sv/agetty-autologin-tty1/conf
+if [ -x /sbin/agetty -o -x /bin/agetty ]; then
+	# util-linux specific settings
+	if [ "${tty}" = "tty1" ]; then
+		GETTY_ARGS=" --autologin root --noclear"
+	fi
+fi
+
+BAUD_RATE=38400
+TERM_NAME=linux
+EOF
+
+# Replace profile for autologin
+rm /etc/profile
+
+cat <<'EOF' >> /etc/profile
+# /etc/profile
+
+# System wide environment and startup programs.
+
+appendpath () {
+    case ":$PATH:" in
+        *:"$1":*)
+            ;;
+        *)
+            PATH="${PATH:+$PATH:}$1"
+    esac
+}
+
+# Set our default path (/usr/sbin:/sbin:/bin included for non-Void chroots)
+appendpath '/root/my-applications/bin'
+appendpath '/usr/local/sbin'
+appendpath '/usr/local/bin'
+appendpath '/usr/bin'
+appendpath '/usr/sbin'
+appendpath '/sbin'
+appendpath '/bin'
+unset appendpath
+
+export PATH
+
+# Set default umask
+umask 022
+
+# autologin on tty1
+if [ -z "$DISPLAY" ] && [ "$(fgconsole)" -eq 1 ]; then
+    startx
+fi
+
+# Load profiles from /etc/profile.d
+if [ -d /etc/profile.d/ ]; then
+	for f in /etc/profile.d/*.sh; do
+		[ -r "$f" ] && . "$f"
+	done
+	unset f
+fi
+
+EOF
+
+####### Finished and echo report
+echo "desktop build process finished"
+

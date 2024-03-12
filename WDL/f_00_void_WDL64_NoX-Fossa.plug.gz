@@ -1,0 +1,27 @@
+# WeeDog Void outfitted with a basic commandline desktop and the Void Linux kernel
+# login is user=root passwd=root
+# all the parameters can changed as desired.
+#
+xbps-install -y base-minimal file mc
+xbps-install -y ncurses-base linux shadow
+pwconv # set up passwd system
+#grpconv
+#echo -e "root\nroot" | passwd >/dev/null 2>&1 # Quietly set default root passwd to "root"
+
+# set root to use /bin/bash
+usermod --shell /bin/bash root
+
+# you can add as many valid commandlines as you want in here
+
+# Set locale to en_US.UTF-8 
+#sed -i 's/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/default/libc-locales
+#xbps-reconfigure -f glibc-locales
+
+
+# Set Bash as shell
+#xbps-alternatives --set bash
+
+
+echo "desktop build process finished"
+
+
