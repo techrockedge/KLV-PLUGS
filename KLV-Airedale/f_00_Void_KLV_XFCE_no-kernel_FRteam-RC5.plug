@@ -1,0 +1,304 @@
+# f_00_Void_KLV_XFCE_no-kernel_WDLteam-rc5.plug
+# version="2.0.0"; revision="-beta15"
+# Kennel Linux Void outfitted with a xfce4 desktop and no kernel **uses puppy linux kernel**
+# Creation date 24Sep2021; Revision date: 19Dec2021
+# Copyright Kennel Linux team; Licence MIT
+
+# build this via terminal commands:build_firstrib_rootfs_401rc1.sh
+# export CONNECTION_TIMEOUT=-1  **not needed with v501**
+# ./build_firstrib_rootfs_501rc1.sh void default amd64 f_00_Void_KLV_XFCE_kernel_WDLteam-rc4.plug
+# Architecture i386 will probably successfully build too as an alternative to amd64
+
+# login is user=root passwd=root
+
+# All the parameters/commandlines can be appropriately changed:
+# Simply comment in or comment out till you have what you desire
+# or add new packages to the xbps-install lists.
+# You can add as many valid commandlines as you want in here.
+#
+# base system
+xbps-install -y base-minimal ncurses-base bash eudev
+xbps-install -y file mc xterm xauth
+xbps-install -y shadow wpa_supplicant  # needed for most wifi
+xbps-install -y ntfs-3g zstd zip
+
+# set up passwd system
+pwconv
+grpconv
+printf "root\nroot\n" | passwd >/dev/null 2>&1 # Quietly set default root passwd to "root"
+
+# set root to use /bin/bash
+usermod --shell /bin/bash root
+
+# Set locale to en_US.UTF-8 
+sed -i 's/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/default/libc-locales
+xbps-reconfigure -f glibc-locales
+
+# Set Bash as shell
+xbps-alternatives --set bash
+
+## --------------------------------------------------------------------------
+## Xorg server, xfce4 Desktop configuration
+
+xbps-install -y xorg xfce4 xfce4-panel xfce4-plugins compton picom
+xbps-install -y gvfs yad
+xbps-install -y gvfs-smb gvfs-mtp gvfs-cdda
+
+# Optional packages
+#
+xbps-install -y geany gftp rox ffmpeg mtpaint xfce4-screenshooter
+xbps-install -y octoxbps fox guvcview putty
+xbps-install -y e2fsprogs yelp gparted
+xbps-install -y dosfstools mtools cherrytree
+xbps-install -y squashfs-tools wget
+xbps-install -y micro
+
+# Browser selection
+xbps-install -y firefox
+
+# Fix Firefox Fonts 
+#
+ln -s /usr/share/fontconfig/conf.avail/70-no-bitmaps.conf /etc/fonts/conf.d/
+xbps-reconfigure -f fontconfig
+
+
+# Install Audio
+#
+xbps-install -y pulseaudio pulseaudio-utils alsa-plugins-pulseaudio alsa-utils
+ln -s /etc/sv/pulseaudio /etc/runit/runsvdir/default/pulseaudio
+
+# Install Network Manager
+#
+xbps-install -y NetworkManager network-manager-applet
+ln -s /etc/sv/NetworkManager /etc/runit/runsvdir/default/NetworkManager
+
+# Set locale to en_US.UTF-8
+sed -i 's/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/default/libc-locales
+xbps-reconfigure -f glibc-locales
+
+# Add ~/Startup directory
+#
+mkdir -p /root/Startup
+cat <<'EOF' >> /usr/local/bin/start-up
+#!/bin/bash
+sleep 5
+user_home=$(eval echo ~${SUDO_USER})
+ls $user_home/Startup/* | while read J
+do
+   "$J" &
+done
+EOF
+
+chmod +x /usr/local/bin/start-up
+ 
+# Setup autologin on tty1
+#
+cp -a /etc/X11/xinit/xinitrc /root/.xinitrc
+cp -R /etc/sv/agetty-tty1 /etc/sv/agetty-autologin-tty1
+sed -i 's/GETTY_ARGS.*/GETTY_ARGS="--autologin root --noclear"/' /etc/sv/agetty-autologin-tty1/conf  # editing for autologin root
+
+# Arrange to startx in user's .bash_profile (per Arch Wiki)
+# Remove this section if not wanting boot straight into X
+touch ~/.bash_profile
+cat <<'AUTOLOGIN' > /etc/profile.d/autologin.sh
+# autologin on tty1
+if [ -z "$DISPLAY" ] && [ "$(fgconsole)" -eq 1 ]; then
+exec startx  # remove the exec if you want back to tty1 on exit X
+
+fi
+AUTOLOGIN
+
+# Get and install autologin fix
+#
+cd /etc/sv
+wget https://rockedge.org/kernels/data/XBPS_packages/agetty-autologin-tty1.tar.gz
+tar xvfz agetty-autologin-tty1.tar.gz
+
+# Use agetty-autologin-tty1 instead of agetty-tty1 
+rm -f /etc/runit/runsvdir/default/agetty-tty1
+ln -s /etc/sv/agetty-autologin-tty1 /etc/runit/runsvdir/default/agetty-autologin-tty1
+
+# enable dbus service
+ln -s /etc/sv/dbus /etc/runit/runsvdir/default/dbus
+
+# Auto-editing .xinitrc to use xfce4 instead of twm
+# Because I'm using exec here the script will end there so no xterms started
+#
+# sed -i 's/twm &/exec xfce4-session/' ~/.xinitrc
+
+sed -i '51,$d' /root/.xinitrc
+echo "/usr/local/bin/start-up &" >>/root/.xinitrc 
+echo "# exec xfce4-session" >>/root/.xinitrc
+echo "xfce4-session" >>/root/.xinitrc  # removed exec to allow dropping out of Xorg to console
+
+## USER CONFIGS: Copy main configs to /etc/skel for all normal users later added
+#
+xbps-install -y sudo
+cp -af /root/. /etc/skel
+mkdir -p /etc/skel/.config /etc/skel/.cache /etc/skel/.local/share
+echo Still some extra to do here re the likes of runit starting pulseaudio
+echo among other user needed config bits and pieces,
+echo so probably a few user-config issues noted as needing fixed here
+
+# Give wheel group nopasswd sudo rights and create weedog as wheel group member
+echo '%wheel ALL=(ALL) NOPASSWD: ALL' | (VISUAL="tee -a" visudo) # wheel group added to sudo no password required
+useradd -m -G wheel -s /bin/bash weedog  # weedog in wheel group so has elevated sudo permissions
+printf "weedog\nweedog\n" | passwd weedog >/dev/null 2>&1 # Quietly set default weedog passwd to "weedog"
+
+# Give wheel group nopasswd sudo rights and create spot as wheel group member
+echo '%wheel ALL=(ALL) NOPASSWD: ALL' | (VISUAL="tee -a" visudo) # wheel group added to sudo no password required
+useradd -m -G wheel -s /bin/bash spot  #spot in wheel group so has elevated sudo permissions
+printf "spot\nspot\n" | passwd spot >/dev/null 2>&1 # Quietly set default spot
+
+# Create /home/spot directories
+#
+mkdir -p /home/spot/Desktop
+mkdir -p /home/spot/Documents
+mkdir -p /home/spot/Downloads
+mkdir -p /home/spot/Music
+mkdir -p /home/spot/my-applications
+mkdir -p /home/spot/Pictures
+mkdir -p /home/spot/Public
+mkdir -p /home/spot/Startup
+mkdir -p /home/spot/Templates
+mkdir -p /home/spot/Videos
+
+
+# Set permissions
+#
+chown -R spot:spot /home/spot
+chown -R weedog:weedog /home/weedog
+
+# add users to groups and change permissions
+#
+usermod -a -G audio weedog
+usermod -a -G audio spot
+usermod -a -G video weedog
+usermod -a -G video spot
+xhost +
+chmod 755 /
+chmod 755 /bin
+chmod 755 /lib
+
+# add sudo -spot to .desktop files
+cd /usr/share/applications
+sed -i 's/^Exec=/&sudo -uspot /' octoxbps.desktop
+sed -i 's/^Exec=/&sudo -uspot /' octoxbps-notifier.desktop
+cp /usr/share/applications/thunar.desktop /usr/share/applications/thunar-spot.desktop
+sed -i 's/^Exec=/&sudo -uspot /' thunar-spot.desktop
+sed -i 's/^Name=/&spot-/' thunar-spot.desktop
+
+#### Get KLV custom packages ####
+#
+# Create and switch to build directory
+mkdir -p /root/Build
+cd /root/Build
+
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/libfontconfig1-1.12_0.x86_64.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/gparted-shell-1.0_0.noarch.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/mime-add-1.1_0.noarch.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/xbps-tools-1.0_3.noarch.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/pfind-howbig-tca-1.0_0.noarch.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/uextract-4.7_1.noarch.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/tzupdate2-2.0_2.noarch.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/xlunch-4.1_3.x86_64.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/default-scripts-1.0_1.noarch.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/dropbear-0.81_1.x86_64.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/SFS-Load-2.0_1.noarch.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/tas-1.15_1.noarch.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/packit-pfind-1.0_1.noarch.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/gettext-1.0_1.noarch.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/swapper-1.2_1.noarch.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/backgrounds-1.0_1.noarch.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/run-as-users-1.5_1.noarch.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/inst-xbps-1.8_1.noarch.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/gtkhash-1.1.1_1.x86_64.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/pure-ftpd-1.0.50_1.x86_64.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/syndownload-2.0_1.x86_64.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/desktop-config-1.0_1.x86_64.xbps
+
+#### Install KLV custom packages ####
+
+# Register and index packages
+cd /root
+xbps-rindex -a Build/*.xbps
+
+# Install libfontconfig cache fix
+xbps-install -y --repository=Build/ libfontconfig1-1.12_0
+
+# Install gparted-shell
+xbps-install -y --repository=Build/ gparted-shell-1.0_0
+
+# Install MIME definitions 
+xbps-install -y --repository=Build/ mime-add-1.1_0
+
+# Install pfind-howbig-tca
+xbps-install -y --repository=Build/ pfind-howbig-tca-1.0_0
+
+# Install xbps-tools 
+xbps-install -y --repository=Build/ xbps-tools-1.0_3
+
+# Install uextract
+xbps-install -y --repository=Build/ uextract-4.7_1
+
+# Install tzupdate
+xbps-install -y --repository=Build/ tzupdate2-2.0_2
+
+# Install xLunch
+xbps-install -y --repository=Build/ xlunch-4.1_3
+xbps-pkgdb -m hold  xlunch-4.1_3
+
+# Install default launch scripts
+xbps-install -y --repository=Build/ default-scripts-1.0_1
+
+# Install dropbear
+xbps-install -y --repository=Build/ dropbear-0.81_1
+
+# Install SFS-Load
+xbps-install -y --repository=Build/ SFS-Load-2.0_1
+
+# Install tas
+xbps-install -y --repository=Build/ tas-1.15_1
+
+# Install Packit and pFind
+xbps-install -y --repository=Build/ packit-pfind-1.0_1
+
+# Install gettext
+xbps-install -y --repository=Build/ gettext-1.0_1
+
+# Install swapper
+xbps-install -y --repository=Build/ swapper-1.2_1
+
+# Install  backgrounds
+xbps-install -y --repository=Build/ backgrounds-1.0_1
+
+# Install run-as-spot and run-as-weedog
+xbps-install -y --repository=Build/ run-as-users-1.5_1
+
+# Install inst-xbps
+xbps-install -y --repository=Build/ inst-xbps-1.8_1
+
+# Install gtkhash
+xbps-install -y --repository=Build/ gtkhash-1.1.1_1
+
+# Install pure-ftpd
+xbps-install -y --repository=Build/ pure-ftpd-1.0.50_1
+
+# Install Syndownload
+xbps-install -y --repository=Build/ syndownload-2.0_1
+
+# Install desktop configuration
+xbps-install -y --repository=Build/ desktop-config-1.0_1
+
+# Set execution permissions recursivly for binaries and scripts
+chmod +x -R /usr/local/bin
+
+# Clean Up
+#
+
+rm -r /root/Build
+rm /var/cache/xbps/*
+
+#-----------------------------------------------------------------------
+echo "desktop build process finished"
+
