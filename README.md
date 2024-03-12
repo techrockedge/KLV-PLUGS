@@ -6,7 +6,7 @@ The first two PLUG projects are the *KLV-Airedale* and *KLV-Spectr* build script
 
 example use of a .plug file:
 
-./build_firstrib_rootfs_latest.sh void default amd64 f_00_Void_KLV_XFCE_kernel_FRteam-rc8.plug
+```./build_firstrib_rootfs_latest.sh void default amd64 f_00_Void_KLV_XFCE_kernel_FRteam-rc8.plug```
 
 PLUG **f_00_Void_KLV_XFCE_kernel_WDLteam-rc8.plug** builds the **rootfs** for a Void Linux based XFCE4 desktop operating system similar to *KLV-Airedale*.
 
