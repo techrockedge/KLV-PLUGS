@@ -1,7 +1,7 @@
 # f_00_Void_KLV_XFCE_no-kernel_FRteam-rc8.plug
 # version="3.0.0"; revision="-rc8"
 # Kennel Linux Void outfitted with a xfce4 desktop and no kernel **uses puppy linux kernel**
-# Creation date 24Sep2021; Revision date: 14Aug2023
+# Creation date 24Sep2021; Revision date: 30Mar2024
 # Copyright Kennel Linux team; Licence MIT
 
 # build this via terminal commands:build_firstrib_rootfs.sh
