@@ -66,8 +66,8 @@ xbps-reconfigure -f fontconfig
 #xbps-install -y pulseaudio pulseaudio-utils alsa-plugins-pulseaudio alsa-utils
 #ln -s /etc/sv/pulseaudio /etc/runit/runsvdir/default/pulseaudio
 
-xbps-install -y pipewire libjack-pipewire wireplumber wireplumber-elogind
-xbps-install -y alsa-pipewire alsa-firmware alsa-plugins-pulseaudio alsa-plugins-jack
+xbps-install -y pipewire libjack-pipewire wireplumber wireplumber-elogind 
+xbps-install -y alsa-pipewire alsa-firmware alsa-plugins-pulseaudio alsa-plugins-jack alsa-utils
 
 # Install Network Manager
 #
@@ -232,7 +232,7 @@ wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/pSchedule-1.
 wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/grub2config-2.0.1_1.x86_64.xbps
 wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/poorercputemp-0.2_1.x86_64.xbps
 wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/psync-2.9_1.x86_64.xbps
-wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/save2flash-1.7_1.noarch.xbps
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/save2flash-1.8_1.noarch.xbps
 wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/dcontrol-2.0_1.x86_64.xbps
 wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/dir2xbps-1.0_1.noarch.xbps 
 wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/load-sfs-fuse-1.2_0.x86_64.xbps
