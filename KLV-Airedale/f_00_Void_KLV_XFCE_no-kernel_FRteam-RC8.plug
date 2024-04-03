@@ -236,7 +236,7 @@ wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/save2flash-1
 wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/dcontrol-2.0_1.x86_64.xbps
 wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/dir2xbps-1.0_1.noarch.xbps 
 wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/load-sfs-fuse-1.2_0.x86_64.xbps
-#wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/
+wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/cortile-2.4.0_1.x86_64.xbps
 #wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/
 #wget ‐‐continue https://rockedge.org/kernels/data/XBPS_packages/
 
@@ -343,7 +343,7 @@ xbps-install -y --repository=Build/ dir2xbps-1.0_1
 xbps-install -y --repository=Build/ load-sfs-fuse-1.2_0
 
 # Install cortile-2.4.0_1
-#xbps-install -y --repository=Build/ 
+xbps-install -y --repository=Build/ cortile-2.4.0_1
 
 # Install 
 #xbps-install -y --repository=Build/ 
