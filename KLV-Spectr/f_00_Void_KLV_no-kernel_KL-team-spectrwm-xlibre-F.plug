@@ -1,0 +1,567 @@
+# f_00_Void_KLV_no-kernel_KL-team-spectrwm-xlibre-F.plug
+# version="3.7"; revision="rc2"
+# Kennel Linux Void outfitted with a Spectrwm desktop and no kernel
+# Creation date 22Dec2025; Revision date: 19Feb2026
+# Copyright Kennel Linux team; License MIT
+
+# build this via terminal commands:build_firstrib_rootfs.sh
+# ./build_firstrib_rootfs.sh void default amd64 f_00_Void_KLV_no-kernel_KL-team-spectrwm-xlibre-F.plug
+# Using a symlink:
+# ./bfr void default amd64 f_00_Void_KLV_no-kernel_KL-team-spectrwm-xlibre-F.plug
+# build with output log:
+# ./bfr void default amd64 f_00_Void_KLV_no-kernel_KL-team-spectrwm-xlibre-F.plug | tee build.log
+# Architecture x86_64
+
+# login is: 
+# user=root passwd=root
+# user=spot passwd=spot
+# user=weedog; passwd=weedog
+
+
+# All the parameters/commandlines can be appropriately changed:
+# Simply comment in or comment out till you have what you desire
+# or add new packages to the xbps-install lists.
+# You can add as many valid commandlines as you want in here.
+#
+
+# base system
+xbps-install -y base-minimal ncurses-base bash eudev
+xbps-install -y file mc xterm xauth dbus-glib eudev kmod
+xbps-install -y shadow dhcpcd wpa_supplicant  # needed for most wifi
+xbps-install -y ntfs-3g zstd xz zip 7zip unzip p7zip rsync xwininfo
+xbps-install -y binutils xz device-mapper dhclient dracut-network openresolv
+xbps-install -y openssl dialog sed elogind polkit
+
+# Install graphics server
+# add Xlibe github mirror repository-x86_64-glibc
+cat <<'SETMIRROR' > /etc/xbps.d/99-repository-xlibre.conf
+repository=https://github.com/xlibre-void/xlibre/releases/latest/download/
+SETMIRROR
+
+# add void-package github mirror repository
+cat <<'SETMIRROR' > /etc/xbps.d/sofijacom-void-repository.conf
+repository=https://github.com/sofijacom/void-package/releases/latest/download/
+SETMIRROR
+
+cat <<'EOF' >> /var/db/xbps/keys/00:ca:42:57:c9:c0:9a:ec:94:b4:7d:97:e5:a9:aa:1e.plist
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>public-key</key>
+	<data>LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlJQklqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FROEFNSUlCQ2dLQ0FRRUF6aFR1SkVjalBFZzZaUnNGbThtLwpaRnY0RWoyNUZVZzRZR3JQZlI3cWdaaGs5MExWd1hnTnVBQVl2TXFrSmpDd1dueEdYZVNzWUgyNFpSaFhiSHNvCm1DOGJFSDBOWkpmWGRYWFl3Rjg1dGl3b0RGRkpxOE0wN3daT0JsVmI4YXhkRm96UElpWXlRUEMxN1BwTjg0UksKS3NzZkJtQmt0dDUwbGptUWpmQW5lV21tZzF5VTRlSWZvR3AvamgrWW9TUGkyTzZTQi9ZVVJpZnNFYmlUK1RoMQpGdmpZTWhCb1VmQ2NGaGlIb3hDWXJOREhNOURSM21lUVI5ZkFuTEhKNEdXclhoMy84TjFhTngwcnZXckdSNDlJCkJrenNJdjErL2hHNzdyVG54Z3VPNGx0QVZ0QnljdVhRa2ZoWlpzMCtNSXphMzZpaVJja1lVRVVzYVFtQkJnUXMKaHdJREFRQUIKLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0tCg==</data>
+	<key>public-key-size</key>
+	<integer>2048</integer>
+	<key>signature-by</key>
+	<string>xlibre-github-actions</string>
+</dict>
+</plist>
+
+EOF
+
+xbps-install -Su
+xbps-install -y xlibre
+
+# set up passwd system
+pwconv
+grpconv
+printf "root\nroot\n" | passwd >/dev/null 2>&1 # Quietly set default root passwd to "root"
+
+# set root to use /bin/bash
+usermod --shell /bin/bash root
+
+# Set locale to en_US.UTF-8
+sed -i 's/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/default/libc-locales
+sed -i 's/C.UTF-8 UTF-8/C.UTF-8 UTF-8/' /etc/default/libc-locales
+echo "LANG=en_US.UTF-8" >> /etc/environment
+echo "LC_ALL=en_US.UTF-8" >> /etc/environment
+xbps-reconfigure -f glibc-locales
+
+# Set Bash as shell
+xbps-alternatives --set bash
+
+## --------------------------------------------------------------------------
+## Install Spectrwm Desktop 
+
+xbps-install -y spectrwm polybar picom dmenu
+xbps-install -y gvfs yad udisks2 rofi nitrogen
+xbps-install -y gvfs-smb gvfs-mtp gvfs-cdda
+xbps-install -y acpi lua fox xdotool lm_sensors
+xbps-install -y noto-fonts-ttf gtk-layer-shell gsimplecal-gtk3
+
+
+# Install lightdm
+xbps-install -y lightdm lightdm-gtk-greeter
+
+# Optional packages
+#
+xbps-install -y geany gftp rox ffmpeg mtpaint lxterminal
+xbps-install -y octoxbps fox guvcview putty epdfview
+xbps-install -y e2fsprogs yelp gparted viewnior pfetch
+xbps-install -y dosfstools mtools cherrytree galculator
+xbps-install -y squashfs-tools wget leafpad xorriso
+xbps-install -y btop gpick gcolor2 gufw mpv htop
+xbps-install -y pcmanfm brightnessctl meld dunst
+xbps-install -y Thunar thunar-archive-plugin thunar-media-tags-plugin
+xbps-install -y thunar-volman gettext osmo
+
+# Install Xorg components for Spectrwm
+
+xbps-install -y xinit xmessage xprop xcompmgr
+xbps-install -y xdg-utils orca gxmessage arandr xset
+xbps-install -y xlockmore xtools xmodmap xrdb xrandr
+
+
+# Install lightdm
+xbps-install -y lightdm lightdm-gtk-greeter
+
+# enable lightdm service
+ln -s /etc/sv/lightdm/ /etc/runit/runsvdir/default/lightdm
+
+# Install theme, icons
+xbps-install -y arc-icon-theme arc-theme
+
+# Construct lightdm configuration files
+
+cat <<'EOF' >> /etc/lightdm/lightdm-gtk-greeter.conf
+theme-name=Arc-Dark
+icon-theme-name=Arc
+background=/usr/share/backgrounds/gnome/adwaita-l.jpg
+EOF
+
+cat <<'EOF' >> /etc/lightdm/lightdm.conf
+greeter-session=lightdm-gtk-greeter
+EOF
+
+# Browser selection
+xbps-install -y firefox
+
+# Fix Firefox Fonts
+#
+ln -s /usr/share/fontconfig/conf.avail/70-no-bitmaps.conf /etc/fonts/conf.d/
+xbps-reconfigure -f fontconfig
+
+# Install Audio
+#
+xbps-install -y pipewire libjack-pipewire wireplumber wireplumber-elogind
+xbps-install -y alsa-pipewire alsa-firmware alsa-plugins-pulseaudio alsa-plugins-jack
+
+# disable pulseaudio autostart
+mv /etc/xdg/autostart/pulseaudio.desktop /etc/xdg/autostart/pulseaudio.desktop.bak
+
+mkdir -p /etc/pipewire/pipewire.conf.d
+ln -s /usr/share/examples/wireplumber/10-wireplumber.conf /etc/pipewire/pipewire.conf.d/
+mkdir -p /etc/pipewire/pipewire.conf.d
+ln -s /usr/share/examples/pipewire/20-pipewire-pulse.conf /etc/pipewire/pipewire.conf.d/
+
+mkdir -p /etc/alsa/conf.d
+ln -s /usr/share/alsa/alsa.conf.d/50-pipewire.conf /etc/alsa/conf.d
+ln -s /usr/share/alsa/alsa.conf.d/99-pipewire-default.conf /etc/alsa/conf.d
+
+# for root desktop
+mkdir -p /root/.config/pipewire/pipewire.conf.d
+ln -s /usr/share/examples/wireplumber/10-wireplumber.conf /root/.config/pipewire/pipewire.conf.d/
+ln -s /usr/share/examples/pipewire/20-pipewire-pulse.conf /root/.config/pipewire/pipewire.conf.d/
+
+# for spot desktop 
+mkdir -p /home/spot/.config/pipewire/pipewire.conf.d 
+ln -s /usr/share/examples/wireplumber/10-wireplumber.conf /home/spot/.config/pipewire/pipewire.conf.d/
+ln -s /usr/share/examples/pipewire/20-pipewire-pulse.conf /home/spot/.config/pipewire/pipewire.conf.d/
+
+# symlink pipewire.desktop launcher in /etc/xdg/autostart/
+ln -s /usr/share/applications/pipewire.desktop /etc/xdg/autostart/pipewire.desktop
+
+# symlink pipewire-pulse.desktop launcher in /etc/xdg/autostart/
+ln -s /usr/share/applications/pipewire-pulse.desktop /etc/xdg/autostart/pipewire-pulse.desktop
+
+# Cups print service
+echo cups cups-filters cups-pdf samba-cups \
+| xargs -n1 xbps-install -y
+ln -s /etc/sv/cupsd /etc/runit/runsvdir/default/cupsd
+
+## autostart firewall Gufw
+ln -s /etc/sv/ufw /var/service
+
+# Bluetooth
+# bluez bluez-alsa blueman
+echo blueman bluez libspa-bluetooth \
+| xargs -n1 xbps-install -y
+ln -s /etc/sv/bluetoothd /var/service
+ln -s /etc/sv/bluetoothd /etc/runit/runsvdir/default/bluetoothd
+
+usermod -G bluetooth -a root
+
+# Install Network Manager
+#
+xbps-install -y NetworkManager network-manager-applet
+ln -s /etc/sv/NetworkManager /etc/runit/runsvdir/default/NetworkManager
+
+# Add ~/Startup directory
+mkdir -p /root/Startup
+
+# Create the script start-up
+echo "Create the script start-up......"
+
+cat <<'EOF' >> /usr/local/bin/start-up
+#!/bin/bash
+sleep 5
+user_home=$(eval echo ~${SUDO_USER})
+ls $user_home/Startup/* | while read J
+do
+   "$J" &
+done
+EOF
+
+# set permission to execute for start-up
+chmod +x /usr/local/bin/start-up
+
+# Start poorercputemp
+mkdir -p /home/spot/.config/autostart
+touch /home/spot/.config/autostart/poorercputemp.desktop
+cat <<'EOF' >> /home/spot/.config/autostart/poorercputemp.desktop
+[Desktop Entry]
+Encoding=UTF-8
+Type=Application
+NoDisplay=true
+Name=poorercputemp
+Exec=sudo poorercputemp
+EOF
+
+# enable dbus elogind and service
+#
+ln -s /etc/sv/dbus /etc/runit/runsvdir/default/dbus
+ln -s /etc/sv/elogind /etc/runit/runsvdir/default/elogind
+
+##
+# ~/.Xresources for larger xterm uxterm fonts for root
+
+cat <<'XRESOURCES' > ~/.Xresources
+Xft*antialias: true
+Xft*autohint: true
+XTerm*background: black
+XTerm*foreground: grey
+XTerm*cursorColor: grey
+XTerm.vt100.geometry: 95x25+150
+XTerm.vt100.scrollBar: true
+XTerm.vt100.scrollbar.width: 8
+XTerm*faceName: Monospace Regular
+XTerm*faceSize: 9
+
+UXft*antialias: true
+UXft*autohint: true
+UXTerm*background: black
+UXTerm*foreground: grey
+UXTerm*cursorColor: grey
+UXTerm.vt100.geometry: 84x25+150
+UXTerm*faceName: Monospace Regular
+UXTerm*faceSize: 9
+XRESOURCES
+
+# ~/.Xresources for larger xterm uxterm fonts for spot
+
+touch  /home/spot/.Xresources
+cat <<'XRESOURCES' > /home/spot/.Xresources
+Xft*antialias: true
+Xft*autohint: true
+XTerm*background: black
+XTerm*foreground: grey
+XTerm*cursorColor: grey
+XTerm.vt100.geometry: 95x25+150
+XTerm.vt100.scrollBar: true
+XTerm.vt100.scrollbar.width: 8
+XTerm*faceName: Monospace Regular
+XTerm*faceSize: 9
+
+UXft*antialias: true
+UXft*autohint: true
+UXTerm*background: black
+UXTerm*foreground: grey
+UXTerm*cursorColor: grey
+UXTerm.vt100.geometry: 84x25+150
+UXTerm*faceName: Monospace Regular
+UXTerm*faceSize: 9
+XRESOURCES
+
+# Change to fancy for root prompt via .bashrc
+sed -i '51,$d' ~/.bashrc
+echo "pfetch" >> ~/.bashrc
+VAR='PS1="\[\e[0;36m\]┌──\[\e[0m\][ \[\e[0;33m\]\u\[\e[0m\]\[\e[0;32m\]@\[\e[0;36m\]\h\[\e[0m\] ] [ \[\e[0;36m\]\t\[\e[0m\] ]\n\[\e[0;36m\]├── \[\e[0;32m\]\w\[\e[0;36m\]\n\[\e[0;36m\]└>\[\e[0m\]" '
+echo "$VAR" >> ~/.bashrc
+
+## USER CONFIGS: Copy main configs to /etc/skel for all normal users later added
+#
+xbps-install -y sudo
+cp -af /root/. /etc/skel
+mkdir -p /etc/skel/.config /etc/skel/.cache /etc/skel/.local/share
+echo Still some extra to do here re the likes of runit starting pulseaudio
+echo among other user needed config bits and pieces,
+echo so probably a few user-config issues noted as needing fixed here
+
+# Give wheel group nopasswd sudo rights and create weedog as wheel group member
+echo '%wheel ALL=(ALL) NOPASSWD: ALL' | (VISUAL="tee -a" visudo) # wheel group added to sudo no password required
+useradd -m -G wheel -s /bin/bash weedog  # weedog in wheel group so has elevated sudo permissions
+printf "weedog\nweedog\n" | passwd weedog >/dev/null 2>&1 # Quietly set default weedog passwd to "weedog"
+
+# Give wheel group nopasswd sudo rights and create spot as wheel group member
+echo '%wheel ALL=(ALL) NOPASSWD: ALL' | (VISUAL="tee -a" visudo) # wheel group added to sudo no password required
+useradd -m -G wheel -s /bin/bash spot  #spot in wheel group so has elevated sudo permissions
+printf "spot\nspot\n" | passwd spot >/dev/null 2>&1 # Quietly set default spot
+
+# Create /root directories
+#
+mkdir -p /root/Desktop
+mkdir -p /root/Documents
+mkdir -p /root/Downloads
+mkdir -p /root/Music
+mkdir -p /root/my-applications
+mkdir -p /root/Pictures
+mkdir -p /root/Public
+mkdir -p /root/Startup
+mkdir -p /root/Templates
+mkdir -p /root/Videos
+
+# Create /home/spot directories
+#
+mkdir -p /home/spot/Desktop
+mkdir -p /home/spot/Documents
+mkdir -p /home/spot/Downloads
+mkdir -p /home/spot/Music
+mkdir -p /home/spot/my-applications
+mkdir -p /home/spot/Pictures
+mkdir -p /home/spot/Public
+mkdir -p /home/spot/Startup
+mkdir -p /home/spot/Templates
+mkdir -p /home/spot/Videos
+
+
+# Set permissions
+#
+chown -R spot:spot /home/spot
+chown -R weedog:weedog /home/weedog
+
+# add users to groups and change permissions
+#
+usermod -a -G audio weedog
+usermod -a -G audio spot
+usermod -a -G video weedog
+usermod -a -G video spot
+xhost +
+chmod 755 /
+chmod 755 /bin
+chmod 755 /lib
+
+# Copy .desktop files to /root/.local/share/applications and add run-as-spot to the Exec command
+#
+mkdir -p /root/.local/share/applications
+cp /usr/share/applications/octoxbps.desktop  /root/.local/share/applications/octoxbps.desktop
+cp /usr/share/applications/octoxbps-notifier.desktop  /root/.local/share/applications/octoxbps-notifier.desktop
+
+# Modify .desktop files so root can run OctoXBPS
+#
+cd /root/.local/share/applications/
+sed -i 's/^Exec=/&run-as-spot /' octoxbps.desktop
+sed -i 's/^Exec=/&run-as-spot /' octoxbps-notifier.desktop
+cp /root/.local/share/applications/octoxbps-notifier.desktop /etc/xdg/autostart/octoxbps-notifier.desktop
+
+# Configure launching dbus, pipewire, pipewire-pulse during lightdm user login.
+#
+cd /etc/lightdm
+sed -i '56,$d' ./Xsession
+echo '
+# exec $@
+pipewire &
+pipewire-pulse &
+exec dbus-run-session $@' >>./Xsession
+
+echo "first stage is complete!!"
+
+
+#### Get KLV custom packages ####
+#
+# Create and switch to build directory
+
+mkdir -p /root/Build
+cd /root/Build
+
+wget -c https://github.com/techrockedge/xbps_packages/raw/refs/heads/main/gparted-shell-1.0_0.noarch.xbps
+wget -c https://github.com/techrockedge/xbps_packages/raw/refs/heads/main/mime-add-1.1_0.noarch.xbps
+wget -c https://github.com/techrockedge/xbps_packages/raw/refs/heads/main/xbps-tools-1.0_3.noarch.xbps
+wget -c https://github.com/techrockedge/xbps_packages/raw/refs/heads/main/howbig-1.0_1.noarch.xbps
+wget -c https://github.com/techrockedge/xbps_packages/raw/refs/heads/main/tzupdate2-2.0_2.noarch.xbps
+wget -c https://github.com/techrockedge/xbps_packages/raw/refs/heads/main/SFS-Load-2.0_1.noarch.xbps
+wget -c https://github.com/techrockedge/xbps_packages/raw/refs/heads/main/tas-2.0_1.noarch.xbps
+wget -c https://github.com/techrockedge/xbps_packages/raw/refs/heads/main/YRadio-1.9_1.x86_64.xbps
+wget -c https://github.com/techrockedge/xbps_packages/raw/refs/heads/main/gettext-xdeb-2.0_1.noarch.xbps
+wget -c https://github.com/techrockedge/xbps_packages/raw/refs/heads/main/run-as-users-1.5_1.noarch.xbps
+wget -c https://github.com/techrockedge/xbps_packages/raw/refs/heads/main/swapper-1.2_1.noarch.xbps
+wget -c https://github.com/techrockedge/xbps_packages/raw/refs/heads/main/packit-pfind-uextract-3.0_1.noarch.xbps
+wget -c https://github.com/techrockedge/xbps_packages/raw/refs/heads/main/set_hostname-1.0_1.noarch.xbps
+wget -c https://github.com/techrockedge/xbps_packages/raw/refs/heads/main/save2flash-1.9_0.noarch.xbps
+wget -c https://github.com/techrockedge/xbps_packages/raw/refs/heads/main/poorercputemp-0.2_1.x86_64.xbps
+wget -c https://github.com/techrockedge/xbps_packages/raw/refs/heads/main/runkit-1.4.0_1.x86_64.xbps
+wget -c https://github.com/techrockedge/xbps_packages/raw/refs/heads/main/psync-2.9_2.x86_64.xbps
+wget -c https://github.com/techrockedge/xbps_packages/raw/refs/heads/main/sysinfo-3.0_1.noarch.xbps
+wget -c https://github.com/techrockedge/xbps_packages/raw/refs/heads/main/tool-apps-3.0_1.noarch.xbps
+
+
+# wget -c https://github.com/techrockedge/xbps_packages/raw/refs/heads/main/gettext-1.0_1.noarch.xbps
+
+# Spectrwm components
+wget -c https://github.com/techrockedge/xbps_packages/raw/refs/heads/main/Spectrwm-xlibre-bar-config-3.6_1.noarch.xbps
+wget -c https://github.com/techrockedge/xbps_packages/raw/refs/heads/main/backgrounds-spectrwm-2.0_1.noarch.xbps
+wget -c https://github.com/techrockedge/xbps_packages/raw/refs/heads/main/spectrwm-icons-1.0_3.noarch.xbps
+wget -c https://github.com/techrockedge/xbps_packages/raw/refs/heads/main/spectrwm-themes-1.0_4.noarch.xbps
+wget -c https://github.com/techrockedge/xbps_packages/raw/refs/heads/main/Touchpad-spectrwm-2.1_1.noarch.xbps
+wget -c https://github.com/techrockedge/xbps_packages/raw/refs/heads/main/spectrwm-dcontrol-2.0_1.noarch.xbps
+
+
+#### Install KLV custom packages ####
+
+# Register and index packages
+cd /root
+xbps-rindex -a Build/*.xbps
+
+# Install runkit
+xbps-install -y --repository=Build/ runkit-1.4.0_1
+
+# Install gparted-shell
+xbps-install -y --repository=Build/ gparted-shell-1.0_0
+
+# Install MIME definitions
+xbps-install -y --repository=Build/ mime-add-1.1_0
+
+# Install howbig
+xbps-install -y --repository=Build/ howbig-1.0_1
+
+# Install xbps-tools
+xbps-install -y --repository=Build/ xbps-tools-1.0_3
+
+# Install tzupdate
+xbps-install -y --repository=Build/ tzupdate2-2.0_2
+
+# Install SFS-Load
+xbps-install -y --repository=Build/ SFS-Load-2.0_1
+
+# Install tas
+xbps-install -y --repository=Build/ tas-2.0_1
+
+# Install gettext stub and xdeb
+xbps-install -y --repository=Build/ gettext-xdeb-2.0_1
+
+# Install gettext
+# xbps-install -y --repository=Build/ gettext-1.0_1
+
+# Install swapper
+xbps-install -y --repository=Build/ swapper-1.2_1
+
+# Install run-as-spot and run-as-weedog
+xbps-install -y --repository=Build/ run-as-users-1.5_1
+
+# Install save2flash RAM2 mechanism
+xbps-install -y --repository=Build/ save2flash-1.9_0
+
+# Install packit-pfind-uextract
+xbps-install -y --repository=Build/ packit-pfind-uextract-3.0_1
+
+# Install script to edit system hostname
+xbps-install -y --repository=Build/ set_hostname-1.0_1
+
+# Install poorercputemp
+xbps-install -y --repository=Build/ poorercputemp-0.2_1
+
+# Install Spectrwm-xlibre-bar-config
+xbps-install -y --repository=Build/ Spectrwm-xlibre-bar-config-3.6_1
+
+# Install backgrounds-spectrwm-2.0_1
+xbps-install -y --repository=Build/ backgrounds-spectrwm-2.0_1
+
+# Install psync
+xbps-install -y --repository=Build/ psync-2.9_2
+
+# Install sysinfo
+xbps-install -y --repository=Build/ sysinfo-3.0_1
+
+# Install tool-apps
+xbps-install -y --repository=Build/ tool-apps-3.0_1
+
+# Install YRadio
+xbps-install -y --repository=Build/ YRadio-1.9_1
+
+# Set execution permissions recursivly for binaries and scripts
+chmod +x -R /usr/local/bin
+echo "custom packages are installed."
+echo "stage 2 is complete!!"
+
+## Stage 3 configurations
+#
+
+# Start poorercputemp
+mkdir -p /home/spot/.config/autostart
+touch /home/spot/.config/autostart/poorercputemp.desktop
+cat <<'EOF' >> /home/spot/.config/autostart/poorercputemp.desktop
+[Desktop Entry]
+Encoding=UTF-8
+Type=Application
+NoDisplay=true
+Name=poorercputemp
+Exec=sudo poorercputemp
+EOF
+
+# Change to fancy prompt via .bashrc for spot
+touch /home/spot/.bashrc
+sed -i '51,$d' /home/spot/.bashrc
+echo "pfetch" >> /home/spot/.bashrc
+VAR='PS1="\[\e[0;36m\]┌──\[\e[0m\][ \[\e[0;33m\]\u\[\e[0m\]\[\e[0;32m\]@\[\e[0;36m\]\h\[\e[0m\] ] [ \[\e[0;36m\]\t\[\e[0m\] ]\n\[\e[0;36m\]├── \[\e[0;32m\]\w\[\e[0;36m\]\n\[\e[0;36m\]└>\[\e[0m\]" '
+echo "$VAR" >> /home/spot/.bashrc
+
+# Activate ~/Startup for spot and root
+#
+mkdir -p /home/spot/.config/autostart
+touch /home/spot/.config/autostart/start-up.desktop
+cat <<'EOF' >> /home/spot/.config/autostart/start-up.desktop
+[Desktop Entry]
+Type=Application
+Exec=/usr/local/bin/start-up
+X-GNOME-Autostart-enabled=true
+NoDisplay=false
+Hidden=false
+Name[en_US]=start-up
+Comment[en_US]=start-scripts
+X-GNOME-Autostart-Delay=0
+
+EOF
+mkdir -p /root/.config/autostart
+touch /root/.config/autostart/start-up.desktop
+cat <<'EOF' >> /root/.config/autostart/start-up.desktop
+[Desktop Entry]
+Type=Application
+Exec=/usr/local/bin/start-up
+X-GNOME-Autostart-enabled=true
+NoDisplay=false
+Hidden=false
+Name[en_US]=start-up
+Comment[en_US]=start-scripts
+X-GNOME-Autostart-Delay=0
+
+EOF
+
+# Ensure ownership and permissions for spot and weedog are correct
+
+chown -R spot:spot /home/spot
+chown -R weedog:weedog /home/weedog
+
+echo "stage 3 is complete!!"
+
+# Clean Up
+#
+
+rm -r /root/Build
+rm /var/cache/xbps/*
+
+# Set your timezone. Example:
+# current_timezone="Etc/UTC"
+current_timezone="America/New_York"
+ln -sf /usr/share/zoneinfo/${current_timezone} /etc/localtime
+
+#-----------------------------------------------------------------------
+echo "desktop build process finished"
